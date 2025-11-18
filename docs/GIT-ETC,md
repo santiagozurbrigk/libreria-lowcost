@@ -1,0 +1,297 @@
+Excelente ✅
+Acá tenés el **`README.md` base del repositorio**, listo para pegar directamente en Cursor.
+Está alineado 100% con el documento técnico anterior y pensado para que cualquier desarrollador pueda clonar, configurar y ejecutar el proyecto sin dudas.
+
+---
+
+```markdown
+# 📚 ZOLUTIONS Librerías  
+Sistema integral de gestión y pedidos online para librerías.
+
+---
+
+## 🚀 Descripción General
+
+ZOLUTIONS Librerías es una plataforma web diseñada para optimizar la operación de librerías minoristas.  
+Incluye un **panel administrativo** para el equipo interno y un **portal público** donde los clientes pueden realizar pedidos y retirarlos en el local, pagando en efectivo al momento de la entrega.
+
+---
+
+## 🧩 Estructura General
+
+```
+
+/backend     → API REST (Nodejs, Express + TypeScript)
+/frontend    → React vite (portal público + panel admin)
+/docs        → Documentación técnica y comercial
+
+````
+
+---
+
+## ⚙️ Tecnologías Principales
+
+| Capa | Stack |
+|------|--------|
+| Frontend | React vite, TailwindCSS, shadcn/ui, React Query, Zustand |
+| Backend | Node.js, Express, TypeScript |
+| Base de Datos | Supabase (PostgreSQL) |
+| Automatización | n8n + WhatsApp Cloud API |
+| Hosting | Vercel (frontend), Render (backend), Supabase (DB y Storage) |
+
+---
+
+## 🧱 Instalación
+
+### 1. Clonar el repositorio
+
+```bash
+git clone https://github.com/tuusuario/zolutions-librerias.git
+cd zolutions-librerias
+````
+
+### 2. Instalar dependencias
+
+#### Backend
+
+```bash
+cd backend
+npm install
+```
+
+#### Frontend
+
+```bash
+cd ../frontend
+npm install
+```
+
+---
+
+## 🔑 Variables de Entorno
+
+Crea un archivo `.env` en `/backend` con:
+
+```
+PORT=4000
+SUPABASE_URL=
+SUPABASE_SERVICE_ROLE_KEY=
+SUPABASE_ANON_KEY=
+N8N_WEBHOOK_URL=
+WHATSAPP_TOKEN=
+```
+
+Crea un archivo `.env.local` en `/frontend` con:
+
+```
+NEXT_PUBLIC_API_URL=https://api.zolutions.com
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+```
+
+---
+
+## 🗄️ Base de Datos
+
+El sistema utiliza **Supabase** (PostgreSQL gestionado).
+Para inicializar las tablas ejecutá las migraciones con Supabase CLI:
+
+```bash
+supabase db push
+```
+
+O pegá directamente el esquema SQL del documento técnico.
+
+---
+
+## 🧮 Scripts principales
+
+### Backend
+
+```bash
+npm run dev       # Inicia servidor en desarrollo
+npm run build     # Compila TypeScript
+npm start         # Ejecuta versión compilada
+```
+
+### Frontend
+
+```bash
+npm run dev       # Ejecuta en localhost:3000
+npm run build     # Build para producción
+npm start         # Serve build en entorno productivo
+```
+
+---
+
+## 🧠 Flujo de Operación
+
+### Portal de Cliente
+
+* El usuario navega productos, agrega al carrito y genera un pedido.
+* No hay pago online: el pedido queda “pendiente”.
+* El personal lo prepara y marca como “listo para retirar”.
+* n8n envía notificación por WhatsApp.
+* Cuando el cliente retira y paga, el pedido se marca “entregado y pagado”.
+
+### Panel Administrativo
+
+* Visualización total de pedidos, clientes y stock.
+* Cambiar estados, ajustar inventario y analizar estadísticas.
+
+---
+
+## 🧰 Endpoints Principales (Backend)
+
+| Método  | Endpoint             | Descripción       |
+| ------- | -------------------- | ----------------- |
+| `POST`  | `/auth/register`     | Registrar usuario |
+| `POST`  | `/auth/login`        | Iniciar sesión    |
+| `GET`   | `/products`          | Listar productos  |
+| `POST`  | `/orders`            | Crear pedido      |
+| `PATCH` | `/orders/:id`        | Actualizar estado |
+| `GET`   | `/admin/stats/sales` | Ver estadísticas  |
+
+Documentación disponible en `/docs` (Swagger UI).
+
+---
+
+## 🔄 Automatización (n8n)
+
+El flujo de notificaciones usa **n8n + WhatsApp Cloud API**.
+
+### Flujo:
+
+1. Trigger desde Supabase (`orders.status = 'listo'`).
+2. n8n recibe el webhook y consulta el pedido.
+3. Envía mensaje por WhatsApp:
+
+   ```
+   Hola {{nombre}}, tu pedido #{{id}} ya está listo para retirar. 
+   Te esperamos en la librería. ¡Gracias por tu compra! 📚
+   ```
+
+---
+
+## 💻 Despliegue a Producción
+
+| Capa         | Plataforma    | Descripción                      |
+| ------------ | ------------- | -------------------------------- |
+| **Frontend** | Vercel        | Deploy automático desde `main`.  |
+| **Backend**  | Railway       | API con logs y CI/CD.            |
+| **DB**       | Supabase      | PostgreSQL gestionado.           |
+| **n8n**      | Railway o VPS | Automatización y notificaciones. |
+
+---
+
+## 📈 Estadísticas
+
+* Total de ventas (`paid = true`)
+* Productos más vendidos
+* Promedio diario y mensual
+* Ranking de clientes frecuentes
+
+---
+
+## 🔐 Roles
+
+| Rol          | Descripción                      |
+| ------------ | -------------------------------- |
+| **Admin**    | Control total del sistema        |
+| **Empleado** | Gestión de stock y pedidos       |
+| **Cliente**  | Portal público y pedidos propios |
+
+---
+
+## 🧩 Módulos del Sistema
+
+### Panel Administrativo
+
+* Dashboard (KPIs, ventas, pendientes)
+* Productos (CRUD + lector de código de barras)
+* Pedidos (estados, filtros, historial)
+* Clientes (contacto, historial de pedidos)
+* Finanzas (ventas entregadas)
+* Estadísticas (totales, productos, clientes)
+
+### Portal del Cliente
+
+* Catálogo online
+* Carrito de compras
+* Confirmación de pedido
+* Estado del pedido (pendiente / listo / entregado)
+* Contacto vía WhatsApp
+
+---
+
+## 🧑‍💻 Recomendaciones de Desarrollo
+
+* Usar **TypeScript** en todo el stack.
+* Validar inputs con **Zod**.
+* Implementar **JWT Auth**.
+* Crear **middleware `authorizeRole()`**.
+* Documentar endpoints con **Swagger**.
+* Implementar **seed inicial**: admin, empleado, productos de ejemplo.
+* Crear endpoint `/health` para monitoreo.
+
+---
+
+## 🧩 Repositorio Sugerido
+
+```
+zolutions-librerias/
+│
+├── backend/
+│   ├── src/
+│   │   ├── controllers/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   ├── middlewares/
+│   │   └── utils/
+│   ├── package.json
+│   └── tsconfig.json
+│
+├── frontend/
+│   ├── app/
+│   ├── components/
+│   ├── hooks/
+│   ├── lib/
+│   ├── package.json
+│   └── next.config.js
+│
+└── docs/
+    ├── TECH_SPEC.md
+    ├── README.md
+    └── Propuesta_Comercial.md
+```
+
+---
+
+## ✅ Estado Actual
+
+* [x] Documento técnico completo (TECH_SPEC.md)
+* [x] README base
+* [x] Esquema SQL Supabase
+* [x] Flujo sin pagos online
+* [ ] Implementación inicial backend
+* [ ] Implementación frontend
+* [ ] Integración n8n
+* [ ] Pruebas y deploy
+
+---
+
+## 📬 Contacto del Proyecto
+
+**ZOLUTIONS Team**
+Desarrollo: Santiago Zurbrigk
+Email: [contacto@zolutions.dev](mailto:contacto@zolutions.dev)
+Versión: 1.1
+Última actualización: Octubre 2025
+
+```
+
+---
+
+¿Querés que te agregue también un archivo `supabase_schema.sql` listo para importar en tu proyecto de Supabase (con todas las tablas, claves foráneas y restricciones incluidas)?  
+Así ya tenés el entorno de base de datos completamente armado para empezar a desarrollar.
+```
