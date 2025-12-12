@@ -476,7 +476,7 @@ router.delete('/:id', authenticateToken, requireStaff, async (req: AuthRequest, 
       message: 'Pedido eliminado exitosamente'
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
