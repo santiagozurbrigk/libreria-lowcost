@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { X, Package, Upload, Image as ImageIcon } from 'lucide-react';
+import { X, Package, Upload } from 'lucide-react';
 import { Button } from './ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/Card';
 import type { Product, CreateProductData, UpdateProductData } from '../hooks/useProducts';

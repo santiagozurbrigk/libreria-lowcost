@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Filter, Eye, Edit, Trash2, ShoppingBag, Clock, CheckCircle, Package, Truck } from 'lucide-react';
+import { Search, Eye, Edit, Trash2, ShoppingBag, Clock, CheckCircle, Package, Truck } from 'lucide-react';
 import { useOrders, useUpdateOrder, useDeleteOrder, type Order } from '../hooks/useOrders';
 import { Button } from '../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';

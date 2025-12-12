@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api';
-import { useAuthStore } from '../store/auth';
+import { useAuthStore, type User } from '../store/auth';
 
 export interface LoginData {
   email: string;
@@ -28,6 +28,14 @@ export interface AuthResponse {
   };
 }
 
+// Función helper para validar y convertir el role
+const validateRole = (role: string): 'admin' | 'empleado' | 'cliente' => {
+  if (role === 'admin' || role === 'empleado' || role === 'cliente') {
+    return role;
+  }
+  return 'cliente'; // Default fallback
+};
+
 // Hook para login
 export const useLogin = () => {
   const { login } = useAuthStore();
@@ -38,7 +46,14 @@ export const useLogin = () => {
       return response.data;
     },
     onSuccess: (data) => {
-      login(data.user, data.token);
+      const user: User = {
+        id: data.user.id,
+        name: data.user.name,
+        email: data.user.email,
+        role: validateRole(data.user.role),
+        phone: data.user.phone,
+      };
+      login(user, data.token);
     },
   });
 };
@@ -53,7 +68,14 @@ export const useRegister = () => {
       return response.data;
     },
     onSuccess: (data) => {
-      login(data.user, data.token);
+      const user: User = {
+        id: data.user.id,
+        name: data.user.name,
+        email: data.user.email,
+        role: validateRole(data.user.role),
+        phone: data.user.phone,
+      };
+      login(user, data.token);
     },
   });
 };

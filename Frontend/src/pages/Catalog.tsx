@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Filter, ShoppingBag } from 'lucide-react';
+import { Search, Filter } from 'lucide-react';
 import { useProducts } from '../hooks/useProducts';
 import { ProductCard } from '../components/ProductCard';
 import { Button } from '../components/ui/Button';

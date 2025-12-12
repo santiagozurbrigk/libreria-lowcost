@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Filter, Plus, Edit, Trash2, Users, Shield, UserCheck, User as UserIcon } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, Users, Shield, UserCheck, User as UserIcon } from 'lucide-react';
 import { useUsers, useCreateUser, useUpdateUser, useDeleteUser, type User } from '../hooks/useUsers';
 import { Button } from '../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';

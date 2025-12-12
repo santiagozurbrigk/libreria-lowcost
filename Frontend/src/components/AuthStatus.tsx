@@ -1,6 +1,6 @@
 import { useAuthStore } from '../store/auth';
 import { Button } from './ui/Button';
-import { LogIn, User } from 'lucide-react';
+import { User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export function AuthStatus() {

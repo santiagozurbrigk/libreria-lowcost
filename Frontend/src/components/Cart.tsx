@@ -2,7 +2,7 @@ import { ShoppingCart, X, Plus, Minus, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useCartStore } from '../store/cart';
 import { Button } from './ui/Button';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/Card';
+import { CardContent, CardHeader, CardTitle } from './ui/Card';
 import { formatPrice } from '../lib/utils';
 
 export function Cart() {

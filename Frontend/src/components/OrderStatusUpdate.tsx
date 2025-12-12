@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, ShoppingBag, DollarSign } from 'lucide-react';
+import { X, ShoppingBag } from 'lucide-react';
 import { Button } from './ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/Card';
 import type { Order } from '../hooks/useOrders';
