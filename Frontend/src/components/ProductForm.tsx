@@ -6,7 +6,7 @@ import { Button } from './ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/Card';
 import type { Product, CreateProductData, UpdateProductData } from '../hooks/useProducts';
 import { useImageUpload } from '../hooks/useImageUpload';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const productSchema = z.object({
   name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
@@ -41,12 +41,12 @@ export function ProductForm({ product, onSubmit, onCancel, isLoading }: ProductF
   } = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
     defaultValues: product ? {
-      name: product.name,
+      name: product.name || '',
       description: product.description || '',
-      price: product.price,
+      price: product.price || 0,
       sku: product.sku || '',
       barcode: product.barcode || '',
-      stock: product.stock,
+      stock: product.stock || 0,
       image_url: product.image_url || '',
     } : {
       name: '',
@@ -58,6 +58,13 @@ export function ProductForm({ product, onSubmit, onCancel, isLoading }: ProductF
       image_url: '',
     },
   });
+
+  // Actualizar barcode si se recibe un producto parcial con solo barcode
+  useEffect(() => {
+    if (product?.barcode && !product.name) {
+      setValue('barcode', product.barcode);
+    }
+  }, [product, setValue]);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

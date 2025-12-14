@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Search, Eye, Edit, Trash2, ShoppingBag, Clock, CheckCircle, Package, Truck } from 'lucide-react';
+import { Search, Eye, Edit, Trash2, ShoppingBag, Clock, CheckCircle, Package, Truck, Scan } from 'lucide-react';
 import { useOrders, useUpdateOrder, useDeleteOrder, type Order } from '../hooks/useOrders';
 import { Button } from '../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
 import { AdminNavbar } from '../components/AdminNavbar';
 import { OrderDetails } from '../components/OrderDetails';
 import { OrderStatusUpdate } from '../components/OrderStatusUpdate';
+import { OrderBarcodeScanner } from '../components/OrderBarcodeScanner';
 
 export function AdminOrders() {
   const [search, setSearch] = useState('');
@@ -14,6 +15,7 @@ export function AdminOrders() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [showScanner, setShowScanner] = useState(false);
   
   const limit = 10;
 
@@ -93,6 +95,14 @@ export function AdminOrders() {
                   Administra y actualiza el estado de los pedidos
                 </p>
               </div>
+              <Button
+                variant="outline"
+                onClick={() => setShowScanner(true)}
+                className="transition-all duration-200 hover:scale-105"
+              >
+                <Scan className="mr-2 h-4 w-4" />
+                Escanear Código
+              </Button>
             </div>
           </div>
 
@@ -340,6 +350,19 @@ export function AdminOrders() {
             </CardContent>
           </Card>
         </div>
+      )}
+
+      {showScanner && (
+        <OrderBarcodeScanner
+          onClose={() => setShowScanner(false)}
+          onOrderFound={(order) => {
+            setSelectedOrder(order);
+            setShowScanner(false);
+          }}
+          onOrderNotFound={() => {
+            setShowScanner(false);
+          }}
+        />
       )}
     </div>
   );

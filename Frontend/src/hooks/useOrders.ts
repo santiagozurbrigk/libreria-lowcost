@@ -20,6 +20,7 @@ export interface Order {
   total: number;
   status: 'pendiente' | 'preparando' | 'listo' | 'entregado';
   is_paid: boolean;
+  barcode?: string;
   created_at: string;
   updated_at: string;
   // Campos del cliente almacenados directamente en el pedido
@@ -138,5 +139,17 @@ export const useDeleteOrder = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
     },
+  });
+};
+
+// Hook para buscar pedido por código de barras
+export const useOrderByBarcode = (barcode: string) => {
+  return useQuery({
+    queryKey: ['order-barcode', barcode],
+    queryFn: async (): Promise<{ success: boolean; data: Order }> => {
+      const response = await api.get(`/orders/search/${barcode}`);
+      return response.data;
+    },
+    enabled: !!barcode,
   });
 };

@@ -291,6 +291,53 @@ router.get('/', authenticateToken, async (req: AuthRequest, res, next) => {
   }
 });
 
+// GET /orders/search/:barcode - Buscar pedido por código de barras
+router.get('/search/:barcode', authenticateToken, async (req: AuthRequest, res, next) => {
+  try {
+    const { barcode } = req.params;
+
+    const supabaseAdmin = getSupabaseAdmin();
+    const { data: order, error } = await supabaseAdmin
+      .from('orders')
+      .select(`
+        *,
+        clients (
+          id,
+          phone,
+          address,
+          users (
+            id,
+            full_name,
+            email
+          )
+        ),
+        order_items (
+          id,
+          quantity,
+          price,
+          products (
+            id,
+            name,
+            sku
+          )
+        )
+      `)
+      .eq('barcode', barcode)
+      .single();
+
+    if (error || !order) {
+      throw createError('Pedido no encontrado', 404);
+    }
+
+    res.json({
+      success: true,
+      data: order
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // GET /orders/:id - Obtener pedido por ID
 router.get('/:id', authenticateToken, async (req: AuthRequest, res, next) => {
   try {

@@ -1,6 +1,7 @@
 import { X, ShoppingBag, User, MapPin, Phone, Mail, DollarSign, Calendar, Package, Clock, CheckCircle, Truck } from 'lucide-react';
 import { Button } from './ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/Card';
+import { OrderBarcode } from './OrderBarcode';
 import type { Order } from '../hooks/useOrders';
 
 interface OrderDetailsProps {
@@ -158,6 +159,14 @@ export function OrderDetails({ order, onClose }: OrderDetailsProps) {
               </div>
             </div>
           </div>
+
+          {/* Código de Barras */}
+          {order.barcode && (
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Código de Barras del Pedido</h3>
+              <OrderBarcode barcode={order.barcode} orderId={order.id.toString()} />
+            </div>
+          )}
 
           {/* Items del pedido */}
           <div>

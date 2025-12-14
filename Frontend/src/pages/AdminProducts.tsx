@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Plus, Search, Edit, Trash2, Eye, Package } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Eye, Package, Scan } from 'lucide-react';
 import { useProducts, useCreateProduct, useUpdateProduct, useDeleteProduct, type Product } from '../hooks/useProducts';
 import { Button } from '../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
 import { AdminNavbar } from '../components/AdminNavbar';
 import { ProductForm } from '../components/ProductForm';
 import { ProductDetails } from '../components/ProductDetails';
+import { BarcodeScanner } from '../components/BarcodeScanner';
 
 export function AdminProducts() {
   const [search, setSearch] = useState('');
@@ -15,6 +16,8 @@ export function AdminProducts() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [viewingProduct, setViewingProduct] = useState<Product | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [showScanner, setShowScanner] = useState(false);
+  const [newProductBarcode, setNewProductBarcode] = useState<string | null>(null);
   
   const queryClient = useQueryClient();
   const limit = 10;
@@ -82,10 +85,20 @@ export function AdminProducts() {
                   Administra el catálogo de productos
                 </p>
               </div>
-              <Button onClick={() => setShowForm(true)}>
-                <Plus className="mr-2 h-4 w-4" />
-                Nuevo Producto
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowScanner(true)}
+                  className="transition-all duration-200 hover:scale-105"
+                >
+                  <Scan className="mr-2 h-4 w-4" />
+                  Escanear Código
+                </Button>
+                <Button onClick={() => setShowForm(true)}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Nuevo Producto
+                </Button>
+              </div>
             </div>
           </div>
 
@@ -97,7 +110,7 @@ export function AdminProducts() {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <input
                     type="text"
-                    placeholder="Buscar productos..."
+                    placeholder="Buscar productos por nombre, SKU o código de barras..."
                     value={search}
                     onChange={(e) => {
                       setSearch(e.target.value);
@@ -106,6 +119,14 @@ export function AdminProducts() {
                     className="w-full pl-10 pr-4 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
                   />
                 </div>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowScanner(true)}
+                  className="transition-all duration-200 hover:scale-105"
+                >
+                  <Scan className="mr-2 h-4 w-4" />
+                  Escanear
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -304,9 +325,32 @@ export function AdminProducts() {
       {/* Modals */}
       {showForm && (
         <ProductForm
-          onSubmit={handleCreateProduct}
-          onCancel={() => setShowForm(false)}
+          product={newProductBarcode ? { barcode: newProductBarcode } as any : undefined}
+          onSubmit={(data) => {
+            handleCreateProduct(data);
+            setNewProductBarcode(null);
+          }}
+          onCancel={() => {
+            setShowForm(false);
+            setNewProductBarcode(null);
+          }}
           isLoading={createProduct.isPending}
+        />
+      )}
+
+      {showScanner && (
+        <BarcodeScanner
+          onClose={() => setShowScanner(false)}
+          onProductFound={(product) => {
+            setViewingProduct(product);
+            setShowScanner(false);
+            queryClient.invalidateQueries({ queryKey: ['products'] });
+          }}
+          onProductNotFound={(barcode) => {
+            setNewProductBarcode(barcode);
+            setShowScanner(false);
+            setShowForm(true);
+          }}
         />
       )}
 
