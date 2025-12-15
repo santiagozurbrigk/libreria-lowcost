@@ -42,7 +42,6 @@ export function OrderBarcode({ barcode, orderId, orderItems, total }: OrderBarco
     if (!containerRef.current) return;
 
     // Crear un canvas más grande para incluir el texto
-    const container = containerRef.current;
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     if (!ctx) return;

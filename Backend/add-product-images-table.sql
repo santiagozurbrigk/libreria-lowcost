@@ -4,7 +4,7 @@
 -- 1. Crear tabla product_images
 CREATE TABLE IF NOT EXISTS product_images (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+  product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
   image_url TEXT NOT NULL,
   display_order INTEGER DEFAULT 0,
   created_at TIMESTAMP DEFAULT now(),

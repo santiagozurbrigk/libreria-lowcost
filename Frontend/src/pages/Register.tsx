@@ -32,7 +32,7 @@ export function Register() {
   const onSubmit = async (data: RegisterFormData) => {
     try {
       // Siempre registrar como cliente
-      const result = await register.mutateAsync({ ...data, role: 'cliente' });
+      await register.mutateAsync({ ...data, role: 'cliente' });
       navigate('/');
     } catch (error) {
       console.error('Error en registro:', error);
