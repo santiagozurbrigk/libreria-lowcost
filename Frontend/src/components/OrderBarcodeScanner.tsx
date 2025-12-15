@@ -23,6 +23,9 @@ export function OrderBarcodeScanner({ onClose, onOrderFound, onOrderNotFound }: 
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const codeReaderRef = useRef<BrowserMultiFormatReader | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const barcodeBufferRef = useRef<string>('');
+  const lastKeyTimeRef = useRef<number>(0);
 
   const { data: orderData, isLoading: isLoadingOrder, error: orderError } = useOrderByBarcode(scannedBarcode || '');
 
@@ -38,6 +41,80 @@ export function OrderBarcodeScanner({ onClose, onOrderFound, onOrderNotFound }: 
         codeReaderRef.current.reset();
         codeReaderRef.current = null;
       }
+    };
+  }, [mode]);
+
+  // Detectar escaneo de lector físico de código de barras
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      const isInputFocused = document.activeElement === inputRef.current;
+      
+      // Si el usuario está escribiendo en otro input/textarea, ignorar
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') && !isInputFocused) {
+        return;
+      }
+
+      const now = Date.now();
+      const timeSinceLastKey = now - lastKeyTimeRef.current;
+
+      // Si pasó más de 100ms desde la última tecla, reiniciar el buffer
+      // (los lectores físicos envían caracteres muy rápido, menos de 50ms entre cada uno)
+      if (timeSinceLastKey > 100) {
+        barcodeBufferRef.current = '';
+      }
+
+      lastKeyTimeRef.current = now;
+
+      // Si es Enter y tenemos caracteres en el buffer, procesar el código
+      if (e.key === 'Enter' && barcodeBufferRef.current.length > 0) {
+        // Solo procesar si NO estamos escribiendo en el input (escaneo físico)
+        // O si el buffer tiene muchos caracteres (indicando escaneo rápido)
+        if (!isInputFocused || barcodeBufferRef.current.length > 5) {
+          e.preventDefault();
+          e.stopPropagation();
+          const scannedCode = barcodeBufferRef.current.trim();
+          barcodeBufferRef.current = '';
+          
+          if (scannedCode.length > 0) {
+            // Cambiar automáticamente a modo manual si estamos en modo cámara
+            if (mode === 'camera') {
+              setMode('manual');
+            }
+            setBarcode(scannedCode);
+            setScannedBarcode(scannedCode);
+            setError(null);
+            // Enfocar el input después de procesar
+            setTimeout(() => {
+              inputRef.current?.focus();
+            }, 50);
+          }
+        }
+      } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
+        // Solo agregar al buffer si NO estamos escribiendo en el input
+        // O si detectamos escaneo rápido (caracteres muy seguidos)
+        if (!isInputFocused || timeSinceLastKey < 50) {
+          // Si estamos en modo cámara y detectamos caracteres rápidos, cambiar a manual
+          if (mode === 'camera' && timeSinceLastKey < 100 && barcodeBufferRef.current.length === 0) {
+            setMode('manual');
+          }
+          barcodeBufferRef.current += e.key;
+        }
+      }
+    };
+
+    // Agregar listener global cuando el componente está montado
+    window.addEventListener('keydown', handleKeyPress);
+
+    // Enfocar el input cuando se cambia a modo manual
+    if (mode === 'manual' && inputRef.current) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    }
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
     };
   }, [mode]);
 
@@ -220,11 +297,13 @@ export function OrderBarcodeScanner({ onClose, onOrderFound, onOrderNotFound }: 
                 </label>
                 <div className="flex gap-2">
                   <input
+                    ref={inputRef}
                     type="text"
                     value={barcode}
                     onChange={(e) => setBarcode(e.target.value)}
                     onKeyPress={(e) => {
                       if (e.key === 'Enter') {
+                        e.preventDefault();
                         handleManualSearch();
                       }
                     }}
