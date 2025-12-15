@@ -455,8 +455,9 @@ export function AdminOrders() {
             setSelectedOrder(order);
             setShowScanner(false);
           }}
-          onOrderNotFound={() => {
-            setShowScanner(false);
+          onOrderNotFound={(barcode) => {
+            // No cerrar automáticamente, solo mostrar el error en el modal
+            console.log(`Pedido no encontrado con código: ${barcode}`);
           }}
         />
       )}

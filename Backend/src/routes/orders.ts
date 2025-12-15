@@ -294,7 +294,10 @@ router.get('/', authenticateToken, async (req: AuthRequest, res, next) => {
 // GET /orders/search/:barcode - Buscar pedido por código de barras
 router.get('/search/:barcode', authenticateToken, async (req: AuthRequest, res, next) => {
   try {
-    const { barcode } = req.params;
+    // Limpiar el código de barras: eliminar espacios y caracteres especiales
+    const barcode = req.params.barcode.trim().replace(/[\r\n\t]/g, '');
+
+    console.log('Buscando pedido con código de barras:', barcode);
 
     const supabaseAdmin = getSupabaseAdmin();
     const { data: order, error } = await supabaseAdmin
@@ -325,9 +328,20 @@ router.get('/search/:barcode', authenticateToken, async (req: AuthRequest, res, 
       .eq('barcode', barcode)
       .single();
 
-    if (error || !order) {
+    if (error) {
+      console.error('Error buscando pedido:', error);
+      // Si es un error de "no encontrado" (PGRST116), lanzar error 404
+      if (error.code === 'PGRST116') {
+        throw createError('Pedido no encontrado', 404);
+      }
+      throw createError('Error buscando pedido', 500);
+    }
+
+    if (!order) {
       throw createError('Pedido no encontrado', 404);
     }
+
+    console.log('Pedido encontrado:', order.id);
 
     res.json({
       success: true,

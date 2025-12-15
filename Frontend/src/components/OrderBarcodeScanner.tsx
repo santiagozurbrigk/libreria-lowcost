@@ -77,13 +77,18 @@ export function OrderBarcodeScanner({ onClose, onOrderFound, onOrderNotFound }: 
           barcodeBufferRef.current = '';
           
           if (scannedCode.length > 0) {
+            // Limpiar el código: eliminar espacios y caracteres especiales al inicio/final
+            const cleanedCode = scannedCode.trim().replace(/[\r\n\t]/g, '');
+            
             // Cambiar automáticamente a modo manual si estamos en modo cámara
             if (mode === 'camera') {
               setMode('manual');
             }
-            setBarcode(scannedCode);
-            setScannedBarcode(scannedCode);
+            setBarcode(cleanedCode);
+            setScannedBarcode(cleanedCode);
             setError(null);
+            setFoundOrder(null); // Limpiar pedido encontrado anterior
+            console.log('Buscando pedido con código:', cleanedCode);
             // Enfocar el input después de procesar
             setTimeout(() => {
               inputRef.current?.focus();
@@ -179,25 +184,31 @@ export function OrderBarcodeScanner({ onClose, onOrderFound, onOrderNotFound }: 
       setError('Por favor ingresa un código de barras');
       return;
     }
-    setScannedBarcode(barcode.trim());
+    const cleanedCode = barcode.trim().replace(/[\r\n\t]/g, '');
+    setScannedBarcode(cleanedCode);
     setError(null);
+    setFoundOrder(null); // Limpiar pedido encontrado anterior
+    console.log('Buscando pedido con código:', cleanedCode);
   };
 
   // Manejar resultado de búsqueda
   useEffect(() => {
     if (scannedBarcode) {
-      if (orderData?.data) {
-        setFoundOrder(orderData.data);
-        if (onOrderFound) {
-          onOrderFound(orderData.data);
-        }
-      } else if (orderError) {
-        if (onOrderNotFound) {
-          onOrderNotFound(scannedBarcode);
+      // Solo procesar cuando la query haya terminado (no está cargando)
+      if (!isLoadingOrder) {
+        if (orderData?.data) {
+          setFoundOrder(orderData.data);
+          if (onOrderFound) {
+            onOrderFound(orderData.data);
+          }
+        } else if (orderError) {
+          // No llamar a onOrderNotFound automáticamente
+          // Solo mostrar el error en la UI para que el usuario pueda intentar de nuevo
+          setError(`Pedido no encontrado con código: ${scannedBarcode}`);
         }
       }
     }
-  }, [orderData, orderError, scannedBarcode, onOrderFound, onOrderNotFound]);
+  }, [orderData, orderError, scannedBarcode, isLoadingOrder, onOrderFound]);
 
   // Cambiar modo
   const handleModeChange = (newMode: 'camera' | 'manual') => {
@@ -344,10 +355,37 @@ export function OrderBarcodeScanner({ onClose, onOrderFound, onOrderNotFound }: 
                 </div>
               )}
 
-              {orderError && (
-                <div className="flex items-center gap-2 p-3 bg-yellow-50 border border-yellow-200 rounded-md text-yellow-700">
-                  <AlertCircle className="h-4 w-4" />
-                  <span className="text-sm">Pedido no encontrado con código: <strong className="font-mono">{scannedBarcode}</strong></span>
+              {orderError && !isLoadingOrder && (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 p-3 bg-yellow-50 border border-yellow-200 rounded-md text-yellow-700">
+                    <AlertCircle className="h-4 w-4" />
+                    <span className="text-sm">Pedido no encontrado con código: <strong className="font-mono">{scannedBarcode}</strong></span>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setScannedBarcode(null);
+                        setBarcode('');
+                        setError(null);
+                        inputRef.current?.focus();
+                      }}
+                      className="flex-1"
+                    >
+                      Intentar de Nuevo
+                    </Button>
+                    {onOrderNotFound && (
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          onOrderNotFound(scannedBarcode);
+                        }}
+                        className="flex-1"
+                      >
+                        Cerrar
+                      </Button>
+                    )}
+                  </div>
                 </div>
               )}
 
