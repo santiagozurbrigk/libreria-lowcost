@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Eye, Edit, Trash2, ShoppingBag, Clock, CheckCircle, Package, Truck, Scan } from 'lucide-react';
+import { Search, Eye, Edit, Trash2, ShoppingBag, Clock, CheckCircle, Package, Truck, Scan, Download, FileSpreadsheet } from 'lucide-react';
 import { useOrders, useUpdateOrder, useDeleteOrder, type Order } from '../hooks/useOrders';
 import { Button } from '../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
@@ -7,6 +7,8 @@ import { AdminNavbar } from '../components/AdminNavbar';
 import { OrderDetails } from '../components/OrderDetails';
 import { OrderStatusUpdate } from '../components/OrderStatusUpdate';
 import { OrderBarcodeScanner } from '../components/OrderBarcodeScanner';
+import { exportOrdersToExcel } from '../lib/exportToExcel';
+import { api } from '../lib/api';
 
 export function AdminOrders() {
   const [search, setSearch] = useState('');
@@ -16,6 +18,8 @@ export function AdminOrders() {
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [showScanner, setShowScanner] = useState(false);
+  const [selectedOrderIds, setSelectedOrderIds] = useState<Set<number>>(new Set());
+  const [isExporting, setIsExporting] = useState(false);
   
   const limit = 10;
 
@@ -80,6 +84,61 @@ export function AdminOrders() {
   const orders = data?.data || [];
   const pagination = data?.pagination;
 
+  // Manejar selección de pedidos
+  const handleToggleSelect = (orderId: number) => {
+    setSelectedOrderIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(orderId)) {
+        newSet.delete(orderId);
+      } else {
+        newSet.add(orderId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleSelectAll = () => {
+    if (selectedOrderIds.size === orders.length) {
+      setSelectedOrderIds(new Set());
+    } else {
+      setSelectedOrderIds(new Set(orders.map(o => o.id)));
+    }
+  };
+
+  // Exportar pedidos seleccionados
+  const handleExportSelected = () => {
+    const selectedOrders = orders.filter(order => selectedOrderIds.has(order.id));
+    if (selectedOrders.length === 0) {
+      alert('Por favor selecciona al menos un pedido para exportar');
+      return;
+    }
+    exportOrdersToExcel(selectedOrders, `pedidos_seleccionados`);
+    setSelectedOrderIds(new Set());
+  };
+
+  // Exportar todos los pedidos
+  const handleExportAll = async () => {
+    setIsExporting(true);
+    try {
+      // Obtener todos los pedidos sin paginación
+      const response = await api.get('/orders', {
+        params: {
+          limit: 10000, // Número grande para obtener todos
+          search: search || undefined,
+          status: statusFilter || undefined,
+        }
+      });
+      
+      const allOrders = response.data.data || [];
+      exportOrdersToExcel(allOrders, 'todos_los_pedidos');
+    } catch (error) {
+      console.error('Error exportando pedidos:', error);
+      alert('Error al exportar pedidos. Por favor intenta de nuevo.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <AdminNavbar />
@@ -95,14 +154,35 @@ export function AdminOrders() {
                   Administra y actualiza el estado de los pedidos
                 </p>
               </div>
-              <Button
-                variant="outline"
-                onClick={() => setShowScanner(true)}
-                className="transition-all duration-200 hover:scale-105"
-              >
-                <Scan className="mr-2 h-4 w-4" />
-                Escanear Código
-              </Button>
+              <div className="flex items-center gap-2">
+                {selectedOrderIds.size > 0 && (
+                  <Button
+                    variant="default"
+                    onClick={handleExportSelected}
+                    className="transition-all duration-200 hover:scale-105"
+                  >
+                    <FileSpreadsheet className="mr-2 h-4 w-4" />
+                    Exportar Seleccionados ({selectedOrderIds.size})
+                  </Button>
+                )}
+                <Button
+                  variant="outline"
+                  onClick={handleExportAll}
+                  disabled={isExporting}
+                  className="transition-all duration-200 hover:scale-105"
+                >
+                  <Download className="mr-2 h-4 w-4" />
+                  {isExporting ? 'Exportando...' : 'Exportar Todos'}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowScanner(true)}
+                  className="transition-all duration-200 hover:scale-105"
+                >
+                  <Scan className="mr-2 h-4 w-4" />
+                  Escanear Código
+                </Button>
+              </div>
             </div>
           </div>
 
@@ -180,6 +260,14 @@ export function AdminOrders() {
                     <table className="w-full">
                       <thead>
                         <tr className="border-b">
+                          <th className="text-left p-4 w-12">
+                            <input
+                              type="checkbox"
+                              checked={selectedOrderIds.size === orders.length && orders.length > 0}
+                              onChange={handleSelectAll}
+                              className="cursor-pointer"
+                            />
+                          </th>
                           <th className="text-left p-4">ID</th>
                           <th className="text-left p-4">Cliente</th>
                           <th className="text-left p-4">Total</th>
@@ -192,6 +280,14 @@ export function AdminOrders() {
                       <tbody>
                         {orders.map((order) => (
                           <tr key={order.id} className="border-b hover:bg-muted/50">
+                            <td className="p-4">
+                              <input
+                                type="checkbox"
+                                checked={selectedOrderIds.has(order.id)}
+                                onChange={() => handleToggleSelect(order.id)}
+                                className="cursor-pointer"
+                              />
+                            </td>
                             <td className="p-4">
                               <span className="font-mono text-sm">#{order.id}</span>
                             </td>

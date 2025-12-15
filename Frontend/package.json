@@ -29,6 +29,7 @@
     "recharts": "^3.3.0",
     "tailwind-merge": "^2.0.0",
     "tailwindcss": "^4.1.14",
+    "xlsx": "^0.18.5",
     "zod": "^4.1.12",
     "zustand": "^4.4.7"
   },
@@ -38,6 +39,7 @@
     "@types/react": "^19.1.16",
     "@types/react-dom": "^19.1.9",
     "@types/react-router-dom": "^5.3.3",
+    "@types/xlsx": "^0.0.35",
     "@vitejs/plugin-react": "^5.0.4",
     "eslint": "^9.36.0",
     "eslint-plugin-react-hooks": "^5.2.0",
