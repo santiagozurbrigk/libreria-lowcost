@@ -295,12 +295,20 @@ router.get('/', authenticateToken, async (req: AuthRequest, res, next) => {
 router.get('/search/:barcode', authenticateToken, async (req: AuthRequest, res, next) => {
   try {
     // Limpiar el código de barras: eliminar espacios y caracteres especiales
-    const barcode = req.params.barcode.trim().replace(/[\r\n\t]/g, '');
+    let barcode = req.params.barcode.trim().replace(/[\r\n\t]/g, '');
 
     console.log('Buscando pedido con código de barras:', barcode);
 
+    // Si el código no empieza con "ORD", intentar agregarlo
+    // Esto permite que lectores que solo leen números funcionen
+    const barcodeWithPrefix = barcode.toUpperCase().startsWith('ORD') 
+      ? barcode.toUpperCase() 
+      : `ORD${barcode}`;
+
     const supabaseAdmin = getSupabaseAdmin();
-    const { data: order, error } = await supabaseAdmin
+    
+    // Intentar buscar primero con el código tal como viene
+    let { data: order, error } = await supabaseAdmin
       .from('orders')
       .select(`
         *,
@@ -327,6 +335,43 @@ router.get('/search/:barcode', authenticateToken, async (req: AuthRequest, res, 
       `)
       .eq('barcode', barcode)
       .single();
+
+    // Si no se encontró y el código no tenía prefijo "ORD", intentar con el prefijo
+    if ((error && error.code === 'PGRST116') || !order) {
+      if (barcode !== barcodeWithPrefix) {
+        console.log('No encontrado sin prefijo, intentando con prefijo:', barcodeWithPrefix);
+        const result = await supabaseAdmin
+          .from('orders')
+          .select(`
+            *,
+            clients (
+              id,
+              phone,
+              address,
+              users (
+                id,
+                full_name,
+                email
+              )
+            ),
+            order_items (
+              id,
+              quantity,
+              price,
+              products (
+                id,
+                name,
+                sku
+              )
+            )
+          `)
+          .eq('barcode', barcodeWithPrefix)
+          .single();
+        
+        order = result.data;
+        error = result.error;
+      }
+    }
 
     if (error) {
       console.error('Error buscando pedido:', error);
