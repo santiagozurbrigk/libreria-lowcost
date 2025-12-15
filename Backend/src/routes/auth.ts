@@ -33,7 +33,7 @@ const registerSchema = z.object({
   name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
   email: z.string().email('Email inválido'),
   password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
-  role: z.enum(['admin', 'empleado', 'cliente']).default('cliente')
+  role: z.enum(['admin', 'empleado', 'cliente']).default('cliente').optional()
 });
 
 const loginSchema = z.object({
@@ -45,7 +45,7 @@ const loginSchema = z.object({
 router.post('/register', async (req, res, next) => {
   try {
     const validatedData = registerSchema.parse(req.body);
-    const { name, email, password, role } = validatedData;
+    const { name, email, password, role = 'cliente' } = validatedData;
 
     // Verificar si el usuario ya existe
     const supabaseAdmin = getSupabaseAdmin();

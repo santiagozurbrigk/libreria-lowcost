@@ -12,7 +12,6 @@ const registerSchema = z.object({
   name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
   email: z.string().email('Email inválido'),
   password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
-  role: z.enum(['admin', 'empleado', 'cliente']),
 });
 
 type RegisterFormData = z.infer<typeof registerSchema>;
@@ -28,20 +27,13 @@ export function Register() {
     formState: { errors },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
-    defaultValues: {
-      role: 'cliente',
-    },
   });
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
-      const result = await register.mutateAsync(data);
-      // Redirigir según el rol del usuario
-      if (result.user.role === 'admin' || result.user.role === 'empleado') {
-        navigate('/admin');
-      } else {
-        navigate('/');
-      }
+      // Siempre registrar como cliente
+      const result = await register.mutateAsync({ ...data, role: 'cliente' });
+      navigate('/');
     } catch (error) {
       console.error('Error en registro:', error);
     }
@@ -132,26 +124,6 @@ export function Register() {
               {errors.password && (
                 <p className="text-sm text-destructive mt-1">
                   {errors.password.message}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label htmlFor="role" className="block text-sm font-medium mb-2">
-                Rol
-              </label>
-              <select
-                id="role"
-                {...registerField('role')}
-                className="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
-              >
-                <option value="cliente">Cliente</option>
-                <option value="empleado">Empleado</option>
-                <option value="admin">Administrador</option>
-              </select>
-              {errors.role && (
-                <p className="text-sm text-destructive mt-1">
-                  {errors.role.message}
                 </p>
               )}
             </div>

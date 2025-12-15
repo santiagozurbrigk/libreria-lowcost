@@ -164,7 +164,12 @@ export function OrderDetails({ order, onClose }: OrderDetailsProps) {
           {order.barcode && (
             <div>
               <h3 className="text-lg font-semibold mb-4">Código de Barras del Pedido</h3>
-              <OrderBarcode barcode={order.barcode} orderId={order.id.toString()} />
+              <OrderBarcode 
+                barcode={order.barcode} 
+                orderId={order.id.toString()}
+                orderItems={order.order_items}
+                total={order.total}
+              />
             </div>
           )}
 

@@ -66,6 +66,30 @@ router.get('/', async (req, res, next) => {
       throw createError('Error obteniendo productos', 500);
     }
 
+    // Obtener imágenes para cada producto
+    if (products && products.length > 0) {
+      const productIds = products.map(p => p.id);
+      const { data: images } = await supabaseAdmin
+        .from('product_images')
+        .select('*')
+        .in('product_id', productIds)
+        .order('display_order', { ascending: true });
+
+      // Agrupar imágenes por producto
+      const imagesByProduct = (images || []).reduce((acc: any, img: any) => {
+        if (!acc[img.product_id]) {
+          acc[img.product_id] = [];
+        }
+        acc[img.product_id].push(img);
+        return acc;
+      }, {});
+
+      // Agregar imágenes a cada producto
+      products.forEach((product: any) => {
+        product.images = imagesByProduct[product.id] || [];
+      });
+    }
+
     res.json({
       success: true,
       data: products,
@@ -97,9 +121,19 @@ router.get('/:id', async (req, res, next) => {
       throw createError('Producto no encontrado', 404);
     }
 
+    // Obtener imágenes del producto
+    const { data: images } = await supabaseAdmin
+      .from('product_images')
+      .select('id, image_url, display_order')
+      .eq('product_id', id)
+      .order('display_order', { ascending: true });
+
     res.json({
       success: true,
-      data: product
+      data: {
+        ...product,
+        images: images || []
+      }
     });
   } catch (error) {
     next(error);
@@ -338,6 +372,104 @@ router.post('/upload-image', authenticateToken, requireStaff, upload.single('ima
         url: urlData.publicUrl,
         path: filePath
       }
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /products/:id/images - Agregar imagen a producto
+router.post('/:id/images', authenticateToken, requireStaff, async (req: AuthRequest, res, next) => {
+  try {
+    const { id } = req.params;
+    const { image_url, display_order } = req.body;
+
+    if (!image_url) {
+      throw createError('image_url es requerido', 400);
+    }
+
+    const supabaseAdmin = getSupabaseAdmin();
+    
+    // Verificar que el producto existe
+    const { data: product } = await supabaseAdmin
+      .from('products')
+      .select('id')
+      .eq('id', id)
+      .single();
+
+    if (!product) {
+      throw createError('Producto no encontrado', 404);
+    }
+
+    // Obtener el máximo display_order para este producto
+    const { data: existingImages } = await supabaseAdmin
+      .from('product_images')
+      .select('display_order')
+      .eq('product_id', id)
+      .order('display_order', { ascending: false })
+      .limit(1);
+
+    const newDisplayOrder = display_order !== undefined 
+      ? display_order 
+      : (existingImages && existingImages.length > 0 ? existingImages[0].display_order + 1 : 0);
+
+    // Insertar imagen
+    const { data: newImage, error } = await supabaseAdmin
+      .from('product_images')
+      .insert({
+        product_id: id,
+        image_url,
+        display_order: newDisplayOrder
+      })
+      .select('*')
+      .single();
+
+    if (error) {
+      throw createError(`Error agregando imagen: ${error.message}`, 500);
+    }
+
+    res.status(201).json({
+      success: true,
+      message: 'Imagen agregada exitosamente',
+      data: newImage
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// DELETE /products/:id/images/:imageId - Eliminar imagen de producto
+router.delete('/:id/images/:imageId', authenticateToken, requireStaff, async (req: AuthRequest, res, next) => {
+  try {
+    const { id, imageId } = req.params;
+
+    const supabaseAdmin = getSupabaseAdmin();
+    
+    // Verificar que la imagen pertenece al producto
+    const { data: image } = await supabaseAdmin
+      .from('product_images')
+      .select('id')
+      .eq('id', imageId)
+      .eq('product_id', id)
+      .single();
+
+    if (!image) {
+      throw createError('Imagen no encontrada', 404);
+    }
+
+    // Eliminar imagen
+    const { error } = await supabaseAdmin
+      .from('product_images')
+      .delete()
+      .eq('id', imageId);
+
+    if (error) {
+      throw createError(`Error eliminando imagen: ${error.message}`, 500);
+    }
+
+    res.json({
+      success: true,
+      message: 'Imagen eliminada exitosamente'
     });
   } catch (error) {
     next(error);

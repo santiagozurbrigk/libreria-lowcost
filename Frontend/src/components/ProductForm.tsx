@@ -1,11 +1,12 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { X, Package, Upload } from 'lucide-react';
+import { X, Package, Upload, Trash2, Image as ImageIcon } from 'lucide-react';
 import { Button } from './ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/Card';
-import type { Product, CreateProductData, UpdateProductData } from '../hooks/useProducts';
+import type { Product, CreateProductData, UpdateProductData, ProductImage } from '../hooks/useProducts';
 import { useImageUpload } from '../hooks/useImageUpload';
+import { useAddProductImage, useDeleteProductImage } from '../hooks/useProducts';
 import { useState, useEffect } from 'react';
 
 const productSchema = z.object({
@@ -31,7 +32,10 @@ export function ProductForm({ product, onSubmit, onCancel, isLoading }: ProductF
   const isEditing = !!product;
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [productImages, setProductImages] = useState<ProductImage[]>(product?.images || []);
   const imageUpload = useImageUpload();
+  const addProductImage = useAddProductImage();
+  const deleteProductImage = useDeleteProductImage();
 
   const {
     register,
@@ -66,6 +70,13 @@ export function ProductForm({ product, onSubmit, onCancel, isLoading }: ProductF
     }
   }, [product, setValue]);
 
+  // Actualizar imágenes cuando cambia el producto
+  useEffect(() => {
+    if (product?.images) {
+      setProductImages(product.images);
+    }
+  }, [product?.images]);
+
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -80,11 +91,43 @@ export function ProductForm({ product, onSubmit, onCancel, isLoading }: ProductF
 
     try {
       const result = await imageUpload.mutateAsync(selectedFile);
-      setValue('image_url', result.data.url);
-      setPreviewUrl(result.data.url);
+      
+      if (isEditing && product?.id) {
+        // Si estamos editando, agregar la imagen al producto
+        await addProductImage.mutateAsync({
+          productId: product.id,
+          imageUrl: result.data.url
+        });
+        setProductImages([...productImages, {
+          id: '',
+          product_id: product.id,
+          image_url: result.data.url,
+          display_order: productImages.length,
+          created_at: new Date().toISOString()
+        }]);
+      } else {
+        // Si estamos creando, usar como imagen principal
+        setValue('image_url', result.data.url);
+        setPreviewUrl(result.data.url);
+      }
+      
       setSelectedFile(null);
     } catch (error) {
       console.error('Error subiendo imagen:', error);
+    }
+  };
+
+  const handleDeleteImage = async (imageId: string) => {
+    if (!isEditing || !product?.id) return;
+    
+    try {
+      await deleteProductImage.mutateAsync({
+        productId: product.id,
+        imageId
+      });
+      setProductImages(productImages.filter(img => img.id !== imageId));
+    } catch (error) {
+      console.error('Error eliminando imagen:', error);
     }
   };
 
@@ -224,13 +267,38 @@ export function ProductForm({ product, onSubmit, onCancel, isLoading }: ProductF
 
 
               {/* Subida de Imagen */}
-              <div>
+              <div className="md:col-span-2">
                 <label className="block text-sm font-medium mb-2">
-                  Imagen del Producto
+                  {isEditing ? 'Imágenes del Producto' : 'Imagen del Producto'}
                 </label>
                 
-                {/* Preview de imagen */}
-                {previewUrl && (
+                {/* Imágenes existentes (solo al editar) */}
+                {isEditing && productImages.length > 0 && (
+                  <div className="mb-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {productImages.map((img) => (
+                      <div key={img.id} className="relative group">
+                        <img 
+                          src={img.image_url} 
+                          alt={`Imagen ${img.display_order + 1}`}
+                          className="w-full h-32 object-cover rounded-lg border"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => handleDeleteImage(img.id)}
+                          disabled={deleteProductImage.isPending}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                {/* Preview de imagen nueva */}
+                {previewUrl && !isEditing && (
                   <div className="mb-4">
                     <img 
                       src={previewUrl} 
@@ -254,26 +322,34 @@ export function ProductForm({ product, onSubmit, onCancel, isLoading }: ProductF
                       <Button
                         type="button"
                         onClick={handleImageUpload}
-                        disabled={imageUpload.isPending}
+                        disabled={imageUpload.isPending || addProductImage.isPending}
                         className="flex items-center space-x-2"
                       >
                         <Upload className="h-4 w-4" />
                         <span>
-                          {imageUpload.isPending ? 'Subiendo...' : 'Subir Imagen'}
+                          {imageUpload.isPending || addProductImage.isPending ? 'Subiendo...' : 'Subir Imagen'}
                         </span>
                       </Button>
                     </div>
                   )}
                   
-                  {/* Campo oculto para la URL */}
-                  <input
-                    type="hidden"
-                    {...register('image_url')}
-                  />
+                  {/* Campo oculto para la URL (solo al crear) */}
+                  {!isEditing && (
+                    <input
+                      type="hidden"
+                      {...register('image_url')}
+                    />
+                  )}
                 </div>
                 
                 {errors.image_url && (
                   <p className="text-sm text-destructive mt-1">{errors.image_url.message}</p>
+                )}
+                
+                {isEditing && (
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Puedes agregar múltiples imágenes al producto. La primera imagen será la principal.
+                  </p>
                 )}
               </div>
             </div>

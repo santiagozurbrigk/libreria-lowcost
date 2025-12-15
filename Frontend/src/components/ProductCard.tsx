@@ -1,4 +1,5 @@
 import { ShoppingCart, Package } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from './ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/Card';
 import { useCartStore } from '../store/cart';
@@ -11,8 +12,10 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useCartStore();
+  const navigate = useNavigate();
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation();
     addItem({
       id: product.id,
       name: product.name,
@@ -23,14 +26,26 @@ export function ProductCard({ product }: ProductCardProps) {
     });
   };
 
+  const handleCardClick = () => {
+    navigate(`/product/${product.id}`);
+  };
+
   const isOutOfStock = product.stock === 0;
+  
+  // Obtener la primera imagen disponible
+  const displayImage = product.images && product.images.length > 0
+    ? product.images[0].image_url
+    : product.image_url;
 
   return (
-    <Card className="h-full flex flex-col transition-all duration-300 hover:shadow-lg hover:scale-[1.02] group">
+    <Card 
+      className="h-full flex flex-col transition-all duration-300 hover:shadow-lg hover:scale-[1.02] group cursor-pointer"
+      onClick={handleCardClick}
+    >
       <div className="aspect-square overflow-hidden rounded-t-lg">
-        {product.image_url ? (
+        {displayImage ? (
           <img
-            src={product.image_url}
+            src={displayImage}
             alt={product.name}
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
             onError={(e) => {
@@ -83,6 +98,9 @@ export function ProductCard({ product }: ProductCardProps) {
           <ShoppingCart className="mr-2 h-4 w-4" />
           {isOutOfStock ? 'Sin stock' : 'Agregar al carrito'}
         </Button>
+        <p className="text-xs text-center text-muted-foreground mt-2">
+          Haz clic en la tarjeta para ver detalles
+        </p>
       </CardContent>
     </Card>
   );

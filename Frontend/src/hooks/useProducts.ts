@@ -1,6 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 
+export interface ProductImage {
+  id: string;
+  product_id: string;
+  image_url: string;
+  display_order: number;
+  created_at: string;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -11,6 +19,7 @@ export interface Product {
   stock: number;
   supplier?: string;
   image_url?: string;
+  images?: ProductImage[];
   created_at: string;
 }
 
@@ -62,6 +71,48 @@ export const useProduct = (id: string) => {
       return response.data;
     },
     enabled: !!id,
+  });
+};
+
+// Hook para agregar imagen a producto
+export const useAddProductImage = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ productId, imageUrl, displayOrder }: { 
+      productId: string; 
+      imageUrl: string; 
+      displayOrder?: number;
+    }): Promise<{ success: boolean; data: ProductImage }> => {
+      const response = await api.post(`/products/${productId}/images`, {
+        image_url: imageUrl,
+        display_order: displayOrder
+      });
+      return response.data;
+    },
+    onSuccess: (_, { productId }) => {
+      queryClient.invalidateQueries({ queryKey: ['product', productId] });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+    },
+  });
+};
+
+// Hook para eliminar imagen de producto
+export const useDeleteProductImage = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ productId, imageId }: { 
+      productId: string; 
+      imageId: string;
+    }): Promise<{ success: boolean }> => {
+      const response = await api.delete(`/products/${productId}/images/${imageId}`);
+      return response.data;
+    },
+    onSuccess: (_, { productId }) => {
+      queryClient.invalidateQueries({ queryKey: ['product', productId] });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+    },
   });
 };
 
