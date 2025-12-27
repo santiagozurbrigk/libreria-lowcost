@@ -48,37 +48,21 @@ router.get('/', async (req, res, next) => {
 
     const supabaseAdmin = getSupabaseAdmin();
     
-    // Primero obtener el count total (sin paginación)
-    let countQuery = supabaseAdmin
-      .from('products')
-      .select('*', { count: 'exact', head: true });
-
-    if (search) {
-      countQuery = countQuery.or(`name.ilike.%${search}%,sku.ilike.%${search}%,barcode.ilike.%${search}%`);
-    }
-
-    const { count, error: countError } = await countQuery;
-
-    if (countError) {
-      console.error('Error obteniendo count de productos:', countError);
-      // Continuar sin count si hay error
-    }
-
-    // Ahora obtener los productos con paginación
+    // Construir query base
     let query = supabaseAdmin
       .from('products')
-      .select('*')
+      .select('*', { count: 'exact' })
       .order('created_at', { ascending: false });
 
     // Filtro de búsqueda
-    if (search) {
+    if (search && typeof search === 'string') {
       query = query.or(`name.ilike.%${search}%,sku.ilike.%${search}%,barcode.ilike.%${search}%`);
     }
 
     // Paginación
     query = query.range(offset, offset + Number(limit) - 1);
 
-    const { data: products, error } = await query;
+    const { data: products, error, count } = await query;
 
     if (error) {
       console.error('Error obteniendo productos:', error);
