@@ -46,7 +46,22 @@ router.get('/', async (req, res, next) => {
     const { page = 1, limit = 20, search, category } = req.query;
     const offset = (Number(page) - 1) * Number(limit);
 
-    const supabaseAdmin = getSupabaseAdmin();
+    // Validar variables de entorno antes de intentar conexión
+    if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('Variables de entorno faltantes:', {
+        hasUrl: !!process.env.SUPABASE_URL,
+        hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY
+      });
+      throw createError('Error de configuración del servidor', 500);
+    }
+
+    let supabaseAdmin;
+    try {
+      supabaseAdmin = getSupabaseAdmin();
+    } catch (configError: any) {
+      console.error('Error inicializando Supabase:', configError);
+      throw createError(`Error de configuración: ${configError.message}`, 500);
+    }
     
     // Construir query base
     let query = supabaseAdmin
@@ -62,10 +77,28 @@ router.get('/', async (req, res, next) => {
     // Paginación
     query = query.range(offset, offset + Number(limit) - 1);
 
-    const { data: products, error, count } = await query;
+    let products, error, count;
+    try {
+      const result = await query;
+      products = result.data;
+      error = result.error;
+      count = result.count;
+    } catch (fetchError: any) {
+      console.error('Error en fetch a Supabase:', {
+        message: fetchError.message,
+        stack: fetchError.stack,
+        cause: fetchError.cause
+      });
+      throw createError(`Error de conexión con la base de datos: ${fetchError.message}`, 500);
+    }
 
     if (error) {
-      console.error('Error obteniendo productos:', error);
+      console.error('Error obteniendo productos:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
       throw createError(`Error obteniendo productos: ${error.message}`, 500);
     }
 
