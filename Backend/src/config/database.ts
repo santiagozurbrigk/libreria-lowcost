@@ -23,57 +23,6 @@ const getSupabaseConfig = () => {
   return { supabaseUrl, supabaseServiceKey, supabaseAnonKey };
 };
 
-// Fetch personalizado con timeout y mejor manejo de errores
-const customFetch: typeof fetch = async (input: string | URL | Request, init?: RequestInit) => {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos timeout
-
-  try {
-    // Convertir input a string para logging
-    const urlString = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
-    const urlObj = new URL(urlString);
-    
-    // Log de la URL que se está intentando conectar (sin exponer credenciales)
-    console.log('🌐 Intentando conectar a Supabase:', {
-      host: urlObj.host,
-      pathname: urlObj.pathname,
-      method: init?.method || 'GET'
-    });
-
-    const response = await fetch(input, {
-      ...init,
-      signal: controller.signal,
-      headers: {
-        ...init?.headers,
-        'Connection': 'keep-alive',
-      }
-    });
-    clearTimeout(timeoutId);
-    return response;
-  } catch (error: any) {
-    clearTimeout(timeoutId);
-    const urlString = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
-    
-    if (error.name === 'AbortError') {
-      const errorMsg = `Timeout al conectar con Supabase después de 30 segundos`;
-      console.error('⏱️', errorMsg, { url: new URL(urlString).host });
-      throw new Error(errorMsg);
-    }
-    // Log detallado del error
-    const urlObj = new URL(urlString);
-    console.error('❌ Error en fetch a Supabase:', {
-      host: urlObj.host,
-      pathname: urlObj.pathname,
-      message: error.message,
-      cause: error.cause?.message || error.cause,
-      code: error.code,
-      errno: error.errno,
-      syscall: error.syscall
-    });
-    throw error;
-  }
-};
-
 // Lazy initialization - solo se ejecuta cuando se llama
 const getSupabaseClients = () => {
   const { supabaseUrl, supabaseServiceKey, supabaseAnonKey } = getSupabaseConfig();
@@ -84,6 +33,8 @@ const getSupabaseClients = () => {
     hasAnonKey: !!supabaseAnonKey
   });
   
+  // Usar configuración estándar de Supabase sin fetch personalizado
+  // para evitar problemas con headers de autenticación
   return {
     supabaseAdmin: createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
@@ -91,17 +42,12 @@ const getSupabaseClients = () => {
         persistSession: false
       },
       global: {
-        fetch: customFetch,
         headers: {
           'x-client-info': 'libreria-backend'
         }
       }
     }),
-    supabaseClient: createClient(supabaseUrl, supabaseAnonKey, {
-      global: {
-        fetch: customFetch
-      }
-    })
+    supabaseClient: createClient(supabaseUrl, supabaseAnonKey)
   };
 };
 
