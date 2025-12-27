@@ -47,6 +47,24 @@ router.get('/', async (req, res, next) => {
     const offset = (Number(page) - 1) * Number(limit);
 
     const supabaseAdmin = getSupabaseAdmin();
+    
+    // Primero obtener el count total (sin paginación)
+    let countQuery = supabaseAdmin
+      .from('products')
+      .select('*', { count: 'exact', head: true });
+
+    if (search) {
+      countQuery = countQuery.or(`name.ilike.%${search}%,sku.ilike.%${search}%,barcode.ilike.%${search}%`);
+    }
+
+    const { count, error: countError } = await countQuery;
+
+    if (countError) {
+      console.error('Error obteniendo count de productos:', countError);
+      // Continuar sin count si hay error
+    }
+
+    // Ahora obtener los productos con paginación
     let query = supabaseAdmin
       .from('products')
       .select('*')
@@ -60,39 +78,58 @@ router.get('/', async (req, res, next) => {
     // Paginación
     query = query.range(offset, offset + Number(limit) - 1);
 
-    const { data: products, error, count } = await query;
+    const { data: products, error } = await query;
 
     if (error) {
-      throw createError('Error obteniendo productos', 500);
+      console.error('Error obteniendo productos:', error);
+      throw createError(`Error obteniendo productos: ${error.message}`, 500);
     }
 
-    // Obtener imágenes para cada producto
+    // Obtener imágenes para cada producto (manejar errores silenciosamente)
     if (products && products.length > 0) {
-      const productIds = products.map(p => p.id);
-      const { data: images } = await supabaseAdmin
-        .from('product_images')
-        .select('*')
-        .in('product_id', productIds)
-        .order('display_order', { ascending: true });
+      try {
+        const productIds = products.map(p => p.id);
+        const { data: images, error: imagesError } = await supabaseAdmin
+          .from('product_images')
+          .select('*')
+          .in('product_id', productIds)
+          .order('display_order', { ascending: true });
 
-      // Agrupar imágenes por producto
-      const imagesByProduct = (images || []).reduce((acc: any, img: any) => {
-        if (!acc[img.product_id]) {
-          acc[img.product_id] = [];
+        if (imagesError) {
+          console.error('Error obteniendo imágenes de productos:', imagesError);
+          // Continuar sin imágenes si hay error
+        } else if (images && images.length > 0) {
+          // Agrupar imágenes por producto
+          const imagesByProduct = images.reduce((acc: any, img: any) => {
+            if (!acc[img.product_id]) {
+              acc[img.product_id] = [];
+            }
+            acc[img.product_id].push(img);
+            return acc;
+          }, {});
+
+          // Agregar imágenes a cada producto
+          products.forEach((product: any) => {
+            product.images = imagesByProduct[product.id] || [];
+          });
+        } else {
+          // Si no hay imágenes, asignar array vacío
+          products.forEach((product: any) => {
+            product.images = [];
+          });
         }
-        acc[img.product_id].push(img);
-        return acc;
-      }, {});
-
-      // Agregar imágenes a cada producto
-      products.forEach((product: any) => {
-        product.images = imagesByProduct[product.id] || [];
-      });
+      } catch (imagesErr) {
+        console.error('Error procesando imágenes:', imagesErr);
+        // Continuar sin imágenes si hay error
+        products.forEach((product: any) => {
+          product.images = [];
+        });
+      }
     }
 
     res.json({
       success: true,
-      data: products,
+      data: products || [],
       pagination: {
         page: Number(page),
         limit: Number(limit),
