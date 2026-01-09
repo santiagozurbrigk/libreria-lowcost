@@ -61,7 +61,7 @@ export function AdminNavbar() {
                 }`}
               >
                 <ShoppingBag className="h-4 w-4 mr-2" />
-                Pedidos
+                Reservas
               </a>
               {user?.role === 'admin' && (
                 <a

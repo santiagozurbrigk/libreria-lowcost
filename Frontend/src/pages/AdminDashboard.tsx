@@ -104,7 +104,7 @@ export function AdminDashboard() {
             <Card className="transition-all duration-300 hover:shadow-lg hover:scale-[1.02] animate-slide-in-bottom" style={{ animationDelay: '200ms' }}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Total de Pedidos
+                  Total de Reservas
                 </CardTitle>
                 <ShoppingBag className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
@@ -113,7 +113,7 @@ export function AdminDashboard() {
                   {economicStats?.data?.totalOrders || 0}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Pedidos en el período
+                  Reservas en el período
                 </p>
               </CardContent>
             </Card>
@@ -130,7 +130,7 @@ export function AdminDashboard() {
                   {formatCurrency(economicStats?.data?.averageOrderValue || 0)}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Valor promedio por pedido
+                  Valor promedio por reserva
                 </p>
               </CardContent>
             </Card>
@@ -174,10 +174,10 @@ export function AdminDashboard() {
               </CardContent>
             </Card>
 
-            {/* Gráfico de Pedidos Diarios */}
+            {/* Gráfico de Reservas Diarias */}
             <Card>
               <CardHeader>
-                <CardTitle>Pedidos Diarios</CardTitle>
+                <CardTitle>Reservas Diarias</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="w-full overflow-x-auto">
@@ -195,7 +195,7 @@ export function AdminDashboard() {
                     />
                     <YAxis tick={{ fontSize: 12 }} />
                     <Tooltip 
-                      formatter={(value: number) => [value, 'Pedidos']}
+                      formatter={(value: number) => [value, 'Reservas']}
                       labelFormatter={(label) => `Fecha: ${formatDate(label)}`}
                     />
                     <Bar dataKey="orders" fill="#10b981" />
@@ -227,7 +227,7 @@ export function AdminDashboard() {
                     }
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {economicStats?.data?.bestDay?.orders || 0} pedidos
+                    {economicStats?.data?.bestDay?.orders || 0} reservas
                   </p>
                 </div>
               </CardContent>
@@ -273,7 +273,7 @@ export function AdminDashboard() {
                     <span className="font-medium">{formatCurrency(economicStats?.data?.totalRevenue || 0)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Pedidos:</span>
+                    <span className="text-sm text-muted-foreground">Reservas:</span>
                     <span className="font-medium">{economicStats?.data?.totalOrders || 0}</span>
                   </div>
                 </div>

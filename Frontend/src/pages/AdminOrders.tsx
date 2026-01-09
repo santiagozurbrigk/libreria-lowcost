@@ -38,7 +38,7 @@ export function AdminOrders() {
       await updateOrder.mutateAsync({ id: orderId, data });
       setEditingOrder(null);
     } catch (error) {
-      console.error('Error actualizando pedido:', error);
+      console.error('Error actualizando reserva:', error);
     }
   };
 
@@ -47,7 +47,7 @@ export function AdminOrders() {
       await deleteOrder.mutateAsync(orderId);
       setDeleteConfirm(null);
     } catch (error) {
-      console.error('Error eliminando pedido:', error);
+      console.error('Error eliminando reserva:', error);
     }
   };
 
@@ -84,7 +84,7 @@ export function AdminOrders() {
   const orders = data?.data || [];
   const pagination = data?.pagination;
 
-  // Manejar selección de pedidos
+  // Manejar selección de reservas
   const handleToggleSelect = (orderId: number) => {
     setSelectedOrderIds(prev => {
       const newSet = new Set(prev);
@@ -105,22 +105,22 @@ export function AdminOrders() {
     }
   };
 
-  // Exportar pedidos seleccionados
+  // Exportar reservas seleccionadas
   const handleExportSelected = () => {
     const selectedOrders = orders.filter(order => selectedOrderIds.has(order.id));
     if (selectedOrders.length === 0) {
-      alert('Por favor selecciona al menos un pedido para exportar');
+      alert('Por favor selecciona al menos una reserva para exportar');
       return;
     }
-    exportOrdersToExcel(selectedOrders, `pedidos_seleccionados`);
+      exportOrdersToExcel(selectedOrders, `reservas_seleccionadas`);
     setSelectedOrderIds(new Set());
   };
 
-  // Exportar todos los pedidos
+  // Exportar todas las reservas
   const handleExportAll = async () => {
     setIsExporting(true);
     try {
-      // Obtener todos los pedidos sin paginación
+      // Obtener todas las reservas sin paginación
       const response = await api.get('/orders', {
         params: {
           limit: 10000, // Número grande para obtener todos
@@ -130,10 +130,10 @@ export function AdminOrders() {
       });
       
       const allOrders = response.data.data || [];
-      exportOrdersToExcel(allOrders, 'todos_los_pedidos');
+      exportOrdersToExcel(allOrders, 'todas_las_reservas');
     } catch (error) {
-      console.error('Error exportando pedidos:', error);
-      alert('Error al exportar pedidos. Por favor intenta de nuevo.');
+      console.error('Error exportando reservas:', error);
+      alert('Error al exportar reservas. Por favor intenta de nuevo.');
     } finally {
       setIsExporting(false);
     }
@@ -149,9 +149,9 @@ export function AdminOrders() {
           <div className="mb-8">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-3xl font-bold text-foreground">Gestión de Pedidos</h1>
+                <h1 className="text-3xl font-bold text-foreground">Gestión de Reservas</h1>
                 <p className="text-muted-foreground">
-                  Administra y actualiza el estado de los pedidos
+                  Administra y actualiza el estado de las reservas
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -194,7 +194,7 @@ export function AdminOrders() {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <input
                     type="text"
-                    placeholder="Buscar por cliente o ID de pedido..."
+                    placeholder="Buscar por cliente o ID de reserva..."
                     value={search}
                     onChange={(e) => {
                       setSearch(e.target.value);
@@ -226,7 +226,7 @@ export function AdminOrders() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <ShoppingBag className="mr-2 h-5 w-5" />
-                Pedidos ({pagination?.total || 0})
+                Reservas ({pagination?.total || 0})
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -244,14 +244,14 @@ export function AdminOrders() {
                 </div>
               ) : error ? (
                 <div className="text-center py-8">
-                  <p className="text-destructive">Error cargando pedidos</p>
+                  <p className="text-destructive">Error cargando reservas</p>
                 </div>
               ) : orders.length === 0 ? (
                 <div className="text-center py-8">
                   <ShoppingBag className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-medium mb-2">No hay pedidos</h3>
+                  <h3 className="text-lg font-medium mb-2">No hay reservas</h3>
                   <p className="text-muted-foreground">
-                    {search || statusFilter ? 'No se encontraron pedidos con esos criterios.' : 'No hay pedidos registrados.'}
+                    {search || statusFilter ? 'No se encontraron reservas con esos criterios.' : 'No hay reservas registradas.'}
                   </p>
                 </div>
               ) : (
@@ -369,7 +369,7 @@ export function AdminOrders() {
                   {pagination && pagination.pages > 1 && (
                     <div className="flex items-center justify-between mt-6">
                       <div className="text-sm text-muted-foreground">
-                        Mostrando {((page - 1) * limit) + 1} a {Math.min(page * limit, pagination.total)} de {pagination.total} pedidos
+                        Mostrando {((page - 1) * limit) + 1} a {Math.min(page * limit, pagination.total)} de {pagination.total} reservas
                       </div>
                       <div className="flex items-center space-x-2">
                         <Button
@@ -426,7 +426,7 @@ export function AdminOrders() {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground mb-4">
-                ¿Estás seguro de que quieres eliminar este pedido? Esta acción no se puede deshacer.
+                ¿Estás seguro de que quieres eliminar esta reserva? Esta acción no se puede deshacer.
               </p>
               <div className="flex justify-end space-x-2">
                 <Button
@@ -457,7 +457,7 @@ export function AdminOrders() {
           }}
           onOrderNotFound={(barcode) => {
             // No cerrar automáticamente, solo mostrar el error en el modal
-            console.log(`Pedido no encontrado con código: ${barcode}`);
+            console.log(`Reserva no encontrada con código: ${barcode}`);
           }}
         />
       )}

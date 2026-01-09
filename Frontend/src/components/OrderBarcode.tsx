@@ -105,7 +105,7 @@ export function OrderBarcode({ barcode, orderId, orderItems, total }: OrderBarco
     // Descargar imagen
     const url = canvas.toDataURL('image/png');
     const link = document.createElement('a');
-    link.download = `codigo-barras-pedido-${orderId || barcode}.png`;
+    link.download = `codigo-barras-reserva-${orderId || barcode}.png`;
     link.href = url;
     document.body.appendChild(link);
     link.click();
@@ -128,12 +128,12 @@ export function OrderBarcode({ barcode, orderId, orderItems, total }: OrderBarco
         <span className="text-sm font-medium text-muted-foreground">Código de Barras</span>
       </div>
       
-      {/* Información del pedido arriba del código */}
+      {/* Información de la reserva arriba del código */}
       {(orderItems && orderItems.length > 0) || total !== undefined ? (
         <div className="w-full text-center space-y-2 mb-4 pb-4 border-b">
           {orderItems && orderItems.length > 0 && (
             <div className="space-y-1">
-              <p className="text-xs font-semibold text-muted-foreground mb-2">Detalles del Pedido:</p>
+              <p className="text-xs font-semibold text-muted-foreground mb-2">Detalles de la Reserva:</p>
               {orderItems.map((item, index) => (
                 <p key={index} className="text-sm">
                   {item.products.name} x{item.quantity}

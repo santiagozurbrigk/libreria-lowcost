@@ -50,7 +50,7 @@ export function Checkout() {
       clearCart();
       setIsSuccess(true);
     } catch (error) {
-      console.error('Error creando pedido:', error);
+      console.error('Error creando reserva:', error);
     }
   };
 
@@ -62,7 +62,7 @@ export function Checkout() {
             <ShoppingBag className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <h2 className="text-2xl font-bold mb-4">Tu carrito está vacío</h2>
             <p className="text-muted-foreground mb-6">
-              Agrega algunos productos antes de proceder al pedido.
+              Agrega algunos productos antes de proceder a la reserva.
             </p>
             <Button onClick={() => navigate('/')}>
               <ArrowLeft className="mr-2 h-4 w-4" />
@@ -80,18 +80,10 @@ export function Checkout() {
         <Card className="max-w-md mx-auto">
           <CardContent className="p-8 text-center">
             <CheckCircle className="h-16 w-16 text-green-600 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold mb-4">¡Pedido realizado con éxito!</h2>
+            <h2 className="text-2xl font-bold mb-4">Reserva exitosa</h2>
             <p className="text-muted-foreground mb-4">
-              Tu pedido ha sido enviado correctamente. Te contactaremos por WhatsApp cuando esté listo para retirar.
+              A la brevedad nos contactaremos para coordinar el pago y envio
             </p>
-            <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-6">
-              <h3 className="font-medium text-blue-900 mb-2">Próximos pasos:</h3>
-              <ul className="text-sm text-blue-800 space-y-1">
-                <li>• Prepararemos tu pedido en 24-48 horas</li>
-                <li>• Te notificaremos por WhatsApp cuando esté listo</li>
-                <li>• El pago se realiza al retirar el pedido</li>
-              </ul>
-            </div>
             <Button onClick={() => navigate('/')} className="w-full">
               Volver al catálogo
             </Button>
@@ -114,9 +106,9 @@ export function Checkout() {
             <ArrowLeft className="mr-2 h-4 w-4" />
             Volver al catálogo
           </Button>
-          <h1 className="text-3xl font-bold">Confirmar Pedido</h1>
+          <h1 className="text-3xl font-bold">Confirmar Reserva</h1>
           <p className="text-muted-foreground">
-            Completa tus datos para finalizar el pedido
+            Completa tus datos para finalizar la reserva
           </p>
         </div>
 
@@ -187,7 +179,7 @@ export function Checkout() {
                   className="w-full"
                   disabled={createOrder.isPending}
                 >
-                  {createOrder.isPending ? 'Procesando...' : 'Confirmar Pedido'}
+                  {createOrder.isPending ? 'Procesando...' : 'Confirmar Reserva'}
                 </Button>
               </form>
             </CardContent>
@@ -196,7 +188,7 @@ export function Checkout() {
           {/* Order Summary */}
           <Card>
             <CardHeader>
-              <CardTitle>Resumen del Pedido</CardTitle>
+              <CardTitle>Resumen de la Reserva</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">

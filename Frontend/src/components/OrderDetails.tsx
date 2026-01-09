@@ -56,7 +56,7 @@ export function OrderDetails({ order, onClose }: OrderDetailsProps) {
         <CardHeader className="flex flex-row items-center justify-between">
           <div className="flex items-center space-x-2">
             <ShoppingBag className="h-5 w-5" />
-            <CardTitle>Detalles del Pedido #{order.id}</CardTitle>
+            <CardTitle>Detalles de la Reserva #{order.id}</CardTitle>
           </div>
           <Button variant="outline" size="sm" onClick={onClose}>
             <X className="h-4 w-4" />
@@ -64,10 +64,10 @@ export function OrderDetails({ order, onClose }: OrderDetailsProps) {
         </CardHeader>
 
         <CardContent className="space-y-6">
-          {/* Información del pedido */}
+          {/* Información de la reserva */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h3 className="text-lg font-semibold mb-4">Información del Pedido</h3>
+              <h3 className="text-lg font-semibold mb-4">Información de la Reserva</h3>
               <div className="space-y-3">
                 <div className="flex items-center space-x-2">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -163,7 +163,7 @@ export function OrderDetails({ order, onClose }: OrderDetailsProps) {
           {/* Código de Barras */}
           {order.barcode && (
             <div>
-              <h3 className="text-lg font-semibold mb-4">Código de Barras del Pedido</h3>
+              <h3 className="text-lg font-semibold mb-4">Código de Barras de la Reserva</h3>
               <OrderBarcode 
                 barcode={order.barcode} 
                 orderId={order.id.toString()}
@@ -173,9 +173,9 @@ export function OrderDetails({ order, onClose }: OrderDetailsProps) {
             </div>
           )}
 
-          {/* Items del pedido */}
+          {/* Items de la reserva */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Productos del Pedido</h3>
+            <h3 className="text-lg font-semibold mb-4">Productos de la Reserva</h3>
             <div className="space-y-3">
               {order.order_items.map((item) => (
                 <div key={item.id} className="flex items-center justify-between p-4 border rounded-lg">
@@ -201,7 +201,7 @@ export function OrderDetails({ order, onClose }: OrderDetailsProps) {
             
             <div className="mt-4 pt-4 border-t">
               <div className="flex justify-between items-center text-lg font-semibold">
-                <span>Total del Pedido:</span>
+                <span>Total de la Reserva:</span>
                 <span>${order.total.toFixed(2)}</span>
               </div>
             </div>

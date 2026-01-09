@@ -1,7 +1,7 @@
 import * as XLSX from 'xlsx';
 import type { Order } from '../hooks/useOrders';
 
-export function exportOrdersToExcel(orders: Order[], filename: string = 'pedidos') {
+export function exportOrdersToExcel(orders: Order[], filename: string = 'reservas') {
   // Preparar los datos para Excel
   const excelData = orders.map((order) => {
     // Formatear fecha
@@ -23,7 +23,7 @@ export function exportOrdersToExcel(orders: Order[], filename: string = 'pedidos
     const totalItems = order.order_items.reduce((sum, item) => sum + item.quantity, 0);
 
     return {
-      'ID Pedido': order.id,
+      'ID Reserva': order.id,
       'Código de Barras': order.barcode || 'N/A',
       'Cliente': order.customer_name || 'Sin nombre',
       'Email': order.customer_email || 'Sin email',
@@ -48,11 +48,11 @@ export function exportOrdersToExcel(orders: Order[], filename: string = 'pedidos
   // Crear workbook y worksheet
   const worksheet = XLSX.utils.json_to_sheet(excelData);
   const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Pedidos');
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Reservas');
 
   // Ajustar ancho de columnas
   const columnWidths = [
-    { wch: 10 }, // ID Pedido
+    { wch: 10 }, // ID Reserva
     { wch: 20 }, // Código de Barras
     { wch: 25 }, // Cliente
     { wch: 30 }, // Email

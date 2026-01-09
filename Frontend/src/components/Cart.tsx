@@ -129,7 +129,7 @@ export function Cart() {
               
               <div className="space-y-2">
                 <Button className="w-full" size="lg" onClick={handleCheckout}>
-                  Proceder al Pedido
+                  Proceder a la Reserva
                 </Button>
                 <Button
                   variant="outline"

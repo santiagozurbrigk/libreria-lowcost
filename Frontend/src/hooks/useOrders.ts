@@ -23,7 +23,7 @@ export interface Order {
   barcode?: string;
   created_at: string;
   updated_at: string;
-  // Campos del cliente almacenados directamente en el pedido
+  // Campos del cliente almacenados directamente en la reserva
   customer_name?: string;
   customer_email?: string;
   customer_phone?: string;
@@ -68,7 +68,7 @@ export interface CreateOrderData {
   total: number;
 }
 
-// Hook para obtener pedidos
+// Hook para obtener reservas
 export const useOrders = (params?: {
   page?: number;
   limit?: number;
@@ -84,7 +84,7 @@ export const useOrders = (params?: {
   });
 };
 
-// Hook para obtener un pedido específico
+// Hook para obtener una reserva específica
 export const useOrder = (id: string) => {
   return useQuery({
     queryKey: ['order', id],
@@ -96,7 +96,7 @@ export const useOrder = (id: string) => {
   });
 };
 
-// Hook para actualizar pedido
+// Hook para actualizar reserva
 export const useUpdateOrder = () => {
   const queryClient = useQueryClient();
   
@@ -112,7 +112,7 @@ export const useUpdateOrder = () => {
   });
 };
 
-// Hook para crear pedido
+// Hook para crear reserva
 export const useCreateOrder = () => {
   const queryClient = useQueryClient();
   
@@ -127,7 +127,7 @@ export const useCreateOrder = () => {
   });
 };
 
-// Hook para eliminar pedido
+// Hook para eliminar reserva
 export const useDeleteOrder = () => {
   const queryClient = useQueryClient();
   
@@ -142,7 +142,7 @@ export const useDeleteOrder = () => {
   });
 };
 
-// Hook para buscar pedido por código de barras
+// Hook para buscar reserva por código de barras
 export const useOrderByBarcode = (barcode: string) => {
   return useQuery({
     queryKey: ['order-barcode', barcode],

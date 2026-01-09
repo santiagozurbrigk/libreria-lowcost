@@ -176,11 +176,11 @@ export function UserForm({ user, onSubmit, onCancel, isLoading }: UserFormProps)
                 </div>
                 <div className="flex items-center space-x-2">
                   {getRoleIcon('empleado')}
-                  <span><strong>Empleado:</strong> Gestión de productos y pedidos</span>
+                  <span><strong>Empleado:</strong> Gestión de productos y reservas</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   {getRoleIcon('cliente')}
-                  <span><strong>Cliente:</strong> Solo puede realizar pedidos</span>
+                  <span><strong>Cliente:</strong> Solo puede realizar reservas</span>
                 </div>
               </div>
             </div>

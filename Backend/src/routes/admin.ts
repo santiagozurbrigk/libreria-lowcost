@@ -31,7 +31,7 @@ router.get('/stats/sales', authenticateToken, requireAdmin, async (req: AuthRequ
     const { period = '30' } = req.query; // días
     const days = Number(period);
 
-    // Ventas totales (todos los pedidos, no solo los entregados)
+    // Ventas totales (todas las reservas, no solo las entregadas)
     const supabaseAdmin = getSupabaseAdmin();
     const { data: totalSales, error: salesError } = await supabaseAdmin
       .from('orders')
@@ -80,28 +80,28 @@ router.get('/stats/sales', authenticateToken, requireAdmin, async (req: AuthRequ
     // Promedio diario
     const dailyAverage = periodSalesAmount / days;
 
-    // Pedidos pendientes
+    // Reservas pendientes
     const { count: pendingCount, error: pendingError } = await supabaseAdmin
       .from('orders')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'pendiente');
 
-    console.log('Error obteniendo pedidos pendientes:', pendingError);
+    console.log('Error obteniendo reservas pendientes:', pendingError);
 
     if (pendingError) {
-      console.error('Error de Supabase en pedidos pendientes:', pendingError);
+      console.error('Error de Supabase en reservas pendientes:', pendingError);
     }
 
-    // Pedidos listos para retirar
+    // Reservas listas para retirar
     const { count: readyCount, error: readyError } = await supabaseAdmin
       .from('orders')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'listo');
 
-    console.log('Error obteniendo pedidos listos:', readyError);
+    console.log('Error obteniendo reservas listas:', readyError);
 
     if (readyError) {
-      console.error('Error de Supabase en pedidos listos:', readyError);
+      console.error('Error de Supabase en reservas listas:', readyError);
     }
 
     return res.json({
@@ -126,7 +126,7 @@ router.get('/stats/products', authenticateToken, requireAdmin, async (req: AuthR
     const { limit = 10 } = req.query;
 
     const supabaseAdmin = getSupabaseAdmin();
-    // Primero obtener los IDs de pedidos entregados y pagados
+    // Primero obtener los IDs de reservas entregadas y pagadas
     const { data: deliveredOrders } = await supabaseAdmin
       .from('orders')
       .select('id')

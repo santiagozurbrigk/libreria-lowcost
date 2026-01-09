@@ -36,7 +36,7 @@ export function OrderStatusUpdate({ order, onSubmit, onCancel, isLoading }: Orde
         <CardHeader className="flex flex-row items-center justify-between">
           <div className="flex items-center space-x-2">
             <ShoppingBag className="h-5 w-5" />
-            <CardTitle>Actualizar Pedido #{order.id}</CardTitle>
+            <CardTitle>Actualizar Reserva #{order.id}</CardTitle>
           </div>
           <Button variant="outline" size="sm" onClick={onCancel}>
             <X className="h-4 w-4" />
@@ -45,7 +45,7 @@ export function OrderStatusUpdate({ order, onSubmit, onCancel, isLoading }: Orde
 
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Información del pedido */}
+            {/* Información de la reserva */}
             <div className="bg-muted/50 p-4 rounded-lg">
               <div className="text-sm text-muted-foreground mb-2">Cliente</div>
               <div className="font-medium">{order.customer_name || 'Cliente sin nombre'}</div>
@@ -53,10 +53,10 @@ export function OrderStatusUpdate({ order, onSubmit, onCancel, isLoading }: Orde
               <div className="text-sm text-muted-foreground mt-1">Total: ${order.total.toFixed(2)}</div>
             </div>
 
-            {/* Estado del pedido */}
+            {/* Estado de la reserva */}
             <div>
               <label htmlFor="status" className="block text-sm font-medium mb-2">
-                Estado del Pedido
+                Estado de la Reserva
               </label>
               <select
                 id="status"
@@ -122,7 +122,7 @@ export function OrderStatusUpdate({ order, onSubmit, onCancel, isLoading }: Orde
                     Actualizando...
                   </>
                 ) : (
-                  'Actualizar Pedido'
+                  'Actualizar Reserva'
                 )}
               </Button>
             </div>

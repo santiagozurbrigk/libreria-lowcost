@@ -23,10 +23,11 @@ app.use(cors({
     const isDev = process.env.NODE_ENV !== 'production';
     const allowedFromEnv = (process.env.FRONTEND_URL || '').split(',').map(o => o.trim()).filter(Boolean);
     const defaultDevOrigins = ['http://localhost:3000', 'http://localhost:5173'];
+    const vercelDomains = ['https://librosmedicina.vercel.app'];
     const vercelPreviewRegex = /^https?:\/\/[a-z0-9-]+-\w+\.vercel\.app$/i;
     const vercelProdRegex = /^https?:\/\/.*\.vercel\.app$/i;
 
-    const allowedOrigins = new Set([...(isDev ? defaultDevOrigins : []), ...allowedFromEnv]);
+    const allowedOrigins = new Set([...(isDev ? defaultDevOrigins : []), ...allowedFromEnv, ...vercelDomains]);
 
     if (!origin) {
       return callback(null, true); // requests como curl o health checks sin origin

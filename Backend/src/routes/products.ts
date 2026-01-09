@@ -333,7 +333,7 @@ router.delete('/:id', authenticateToken, requireStaff, async (req: AuthRequest, 
       throw createError('Producto no encontrado', 404);
     }
 
-    // Verificar si el producto está en algún pedido
+    // Verificar si el producto está en alguna reserva
     const { data: orderItems } = await supabaseAdmin
       .from('order_items')
       .select('id')
@@ -341,7 +341,7 @@ router.delete('/:id', authenticateToken, requireStaff, async (req: AuthRequest, 
       .limit(1);
 
     if (orderItems && orderItems.length > 0) {
-      throw createError('No se puede eliminar un producto que está en pedidos', 400);
+      throw createError('No se puede eliminar un producto que está en reservas', 400);
     }
 
     const { error } = await supabaseAdmin

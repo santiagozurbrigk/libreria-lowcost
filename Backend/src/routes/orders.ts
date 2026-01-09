@@ -53,7 +53,7 @@ const updateOrderSchema = z.object({
   is_paid: z.boolean().optional()
 });
 
-// POST /orders - Crear pedido (público, pero con autenticación opcional)
+// POST /orders - Crear reserva (público, pero con autenticación opcional)
 router.post('/', optionalAuth, async (req: AuthRequest, res, next) => {
   try {
     const validatedData = createOrderSchema.parse(req.body);
@@ -117,7 +117,7 @@ router.post('/', optionalAuth, async (req: AuthRequest, res, next) => {
       }
     }
 
-    // Crear el pedido
+    // Crear la reserva
     const { data: newOrder, error: orderError } = await supabaseAdmin
       .from('orders')
       .insert({
@@ -125,7 +125,7 @@ router.post('/', optionalAuth, async (req: AuthRequest, res, next) => {
         total,
         status: 'pendiente',
         is_paid: false,
-        // Almacenar datos del cliente en el pedido
+        // Almacenar datos del cliente en la reserva
         customer_name: customer_name,
         customer_email: customer_email,
         customer_phone: customer_phone
@@ -134,10 +134,10 @@ router.post('/', optionalAuth, async (req: AuthRequest, res, next) => {
       .single();
 
     if (orderError) {
-      throw createError('Error creando pedido', 500);
+      throw createError('Error creando reserva', 500);
     }
 
-    // Crear los items del pedido
+    // Crear los items de la reserva
     const orderItems = items.map(item => ({
       order_id: newOrder.id,
       product_id: item.product_id,
@@ -151,9 +151,9 @@ router.post('/', optionalAuth, async (req: AuthRequest, res, next) => {
 
     if (itemsError) {
       console.error('Error inserting order items:', itemsError);
-      // Si falla la creación de items, eliminar el pedido
+      // Si falla la creación de items, eliminar la reserva
       await supabaseAdmin.from('orders').delete().eq('id', newOrder.id);
-      throw createError('Error creando items del pedido', 500);
+      throw createError('Error creando items de la reserva', 500);
     }
 
     // Actualizar stock de productos
@@ -178,7 +178,7 @@ router.post('/', optionalAuth, async (req: AuthRequest, res, next) => {
       }
     }
 
-    // Obtener el pedido completo con items
+    // Obtener la reserva completa con items
     const { data: completeOrder } = await supabaseAdmin
       .from('orders')
       .select(`
@@ -209,7 +209,7 @@ router.post('/', optionalAuth, async (req: AuthRequest, res, next) => {
 
     res.status(201).json({
       success: true,
-      message: 'Pedido creado exitosamente',
+      message: 'Reserva creada exitosamente',
       data: completeOrder
     });
   } catch (error) {
@@ -217,7 +217,7 @@ router.post('/', optionalAuth, async (req: AuthRequest, res, next) => {
   }
 });
 
-// GET /orders - Listar pedidos (según rol)
+// GET /orders - Listar reservas (según rol)
 router.get('/', authenticateToken, async (req: AuthRequest, res, next) => {
   try {
     const { page = 1, limit = 20, status, customer_phone } = req.query;
@@ -273,7 +273,7 @@ router.get('/', authenticateToken, async (req: AuthRequest, res, next) => {
     const { data: orders, error, count } = await query;
 
     if (error) {
-      throw createError('Error obteniendo pedidos', 500);
+      throw createError('Error obteniendo reservas', 500);
     }
 
     res.json({
@@ -291,13 +291,13 @@ router.get('/', authenticateToken, async (req: AuthRequest, res, next) => {
   }
 });
 
-// GET /orders/search/:barcode - Buscar pedido por código de barras
+// GET /orders/search/:barcode - Buscar reserva por código de barras
 router.get('/search/:barcode', authenticateToken, async (req: AuthRequest, res, next) => {
   try {
     // Limpiar el código de barras: eliminar espacios y caracteres especiales
     let barcode = req.params.barcode.trim().replace(/[\r\n\t]/g, '');
 
-    console.log('Buscando pedido con código de barras:', barcode);
+    console.log('Buscando reserva con código de barras:', barcode);
 
     // Si el código no empieza con "ORD", intentar agregarlo
     // Esto permite que lectores que solo leen números funcionen
@@ -374,19 +374,19 @@ router.get('/search/:barcode', authenticateToken, async (req: AuthRequest, res, 
     }
 
     if (error) {
-      console.error('Error buscando pedido:', error);
+      console.error('Error buscando reserva:', error);
       // Si es un error de "no encontrado" (PGRST116), lanzar error 404
       if (error.code === 'PGRST116') {
-        throw createError('Pedido no encontrado', 404);
+        throw createError('Reserva no encontrada', 404);
       }
-      throw createError('Error buscando pedido', 500);
+      throw createError('Error buscando reserva', 500);
     }
 
     if (!order) {
-      throw createError('Pedido no encontrado', 404);
+      throw createError('Reserva no encontrada', 404);
     }
 
-    console.log('Pedido encontrado:', order.id);
+    console.log('Reserva encontrada:', order.id);
 
     res.json({
       success: true,
@@ -397,7 +397,7 @@ router.get('/search/:barcode', authenticateToken, async (req: AuthRequest, res, 
   }
 });
 
-// GET /orders/:id - Obtener pedido por ID
+// GET /orders/:id - Obtener reserva por ID
 router.get('/:id', authenticateToken, async (req: AuthRequest, res, next) => {
   try {
     const { id } = req.params;
@@ -431,7 +431,7 @@ router.get('/:id', authenticateToken, async (req: AuthRequest, res, next) => {
       .eq('id', id)
       .single();
 
-    // Si es cliente, solo puede ver sus propios pedidos
+    // Si es cliente, solo puede ver sus propias reservas
     if (req.user?.role === 'cliente') {
       // Para clientes, necesitamos filtrar después de obtener los datos
       // ya que no podemos usar eq en relaciones anidadas directamente
@@ -440,7 +440,7 @@ router.get('/:id', authenticateToken, async (req: AuthRequest, res, next) => {
     const { data: order, error } = await query;
 
     if (error || !order) {
-      throw createError('Pedido no encontrado', 404);
+      throw createError('Reserva no encontrada', 404);
     }
 
     res.json({
@@ -452,13 +452,13 @@ router.get('/:id', authenticateToken, async (req: AuthRequest, res, next) => {
   }
 });
 
-// PATCH /orders/:id - Actualizar pedido (solo staff)
+// PATCH /orders/:id - Actualizar reserva (solo staff)
 router.patch('/:id', authenticateToken, requireStaff, async (req: AuthRequest, res, next) => {
   try {
     const { id } = req.params;
     const validatedData = updateOrderSchema.parse(req.body);
 
-    // Verificar que el pedido existe
+    // Verificar que la reserva existe
     const supabaseAdmin = getSupabaseAdmin();
     const { data: existingOrder } = await supabaseAdmin
       .from('orders')
@@ -467,7 +467,7 @@ router.patch('/:id', authenticateToken, requireStaff, async (req: AuthRequest, r
       .single();
 
     if (!existingOrder) {
-      throw createError('Pedido no encontrado', 404);
+      throw createError('Reserva no encontrada', 404);
     }
 
     const { data: updatedOrder, error } = await supabaseAdmin
@@ -500,13 +500,13 @@ router.patch('/:id', authenticateToken, requireStaff, async (req: AuthRequest, r
       .single();
 
     if (error) {
-      throw createError('Error actualizando pedido', 500);
+      throw createError('Error actualizando reserva', 500);
     }
 
     // Enviar notificaciones cuando el status cambia
     if (validatedData.status && validatedData.status !== existingOrder.status) {
       if (validatedData.status === 'listo') {
-        // Notificar que el pedido está listo para retirar
+        // Notificar que la reserva está lista para retirar
         await sendNotificationToN8N('order_ready', {
           order_id: id,
           customer_name: existingOrder.customer_name,
@@ -516,7 +516,7 @@ router.patch('/:id', authenticateToken, requireStaff, async (req: AuthRequest, r
           status: 'listo'
         });
       } else if (validatedData.status === 'entregado') {
-        // Notificar que el pedido fue retirado
+        // Notificar que la reserva fue retirada
         await sendNotificationToN8N('order_delivered', {
           order_id: id,
           customer_name: existingOrder.customer_name,
@@ -530,7 +530,7 @@ router.patch('/:id', authenticateToken, requireStaff, async (req: AuthRequest, r
 
     res.json({
       success: true,
-      message: 'Pedido actualizado exitosamente',
+      message: 'Reserva actualizada exitosamente',
       data: updatedOrder
     });
   } catch (error) {
@@ -538,13 +538,13 @@ router.patch('/:id', authenticateToken, requireStaff, async (req: AuthRequest, r
   }
 });
 
-// Eliminar pedido
+// Eliminar reserva
 router.delete('/:id', authenticateToken, requireStaff, async (req: AuthRequest, res, next) => {
   try {
     const { id } = req.params;
     const supabaseAdmin = getSupabaseAdmin();
 
-    // Verificar que el pedido existe
+    // Verificar que la reserva existe
     const { data: order, error: orderError } = await supabaseAdmin
       .from('orders')
       .select('*')
@@ -552,34 +552,34 @@ router.delete('/:id', authenticateToken, requireStaff, async (req: AuthRequest, 
       .single();
 
     if (orderError || !order) {
-      throw createError('Pedido no encontrado', 404);
+      throw createError('Reserva no encontrada', 404);
     }
 
-    // Eliminar items del pedido primero (por las foreign keys)
+    // Eliminar items de la reserva primero (por las foreign keys)
     const { error: itemsError } = await supabaseAdmin
       .from('order_items')
       .delete()
       .eq('order_id', id);
 
     if (itemsError) {
-      console.error('Error eliminando items del pedido:', itemsError);
-      throw createError('Error eliminando items del pedido', 500);
+      console.error('Error eliminando items de la reserva:', itemsError);
+      throw createError('Error eliminando items de la reserva', 500);
     }
 
-    // Eliminar el pedido
+    // Eliminar la reserva
     const { error: deleteError } = await supabaseAdmin
       .from('orders')
       .delete()
       .eq('id', id);
 
     if (deleteError) {
-      console.error('Error eliminando pedido:', deleteError);
-      throw createError('Error eliminando pedido', 500);
+      console.error('Error eliminando reserva:', deleteError);
+      throw createError('Error eliminando reserva', 500);
     }
 
     return res.json({
       success: true,
-      message: 'Pedido eliminado exitosamente'
+      message: 'Reserva eliminada exitosamente'
     });
   } catch (error) {
     return next(error);
