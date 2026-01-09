@@ -6,6 +6,12 @@ export default {
   ],
   theme: {
     extend: {
+      colors: {
+        primary: {
+          DEFAULT: 'hsl(217, 83%, 31%)',
+          foreground: 'hsl(0, 0%, 100%)',
+        },
+      },
       animation: {
         'fade-in': 'fadeIn 0.3s ease-in-out',
         'slide-in-bottom': 'slideInBottom 0.3s ease-out',
