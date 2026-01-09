@@ -183,7 +183,7 @@ export function ProductPage() {
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-4xl font-bold">{formatPrice(product.price)}</span>
+              <span className="text-4xl font-bold text-primary">{formatPrice(product.price)}</span>
               <div className="flex items-center space-x-2 text-sm">
                 <Package className="h-4 w-4" />
                 <span className={isOutOfStock ? 'text-destructive font-semibold' : 'text-muted-foreground'}>

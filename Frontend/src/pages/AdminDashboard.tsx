@@ -165,9 +165,9 @@ export function AdminDashboard() {
                     <Line 
                       type="monotone" 
                       dataKey="total" 
-                      stroke="#2563eb" 
+                      stroke="#0d3f8f" 
                       strokeWidth={2}
-                      dot={{ fill: '#2563eb', strokeWidth: 2, r: 4 }}
+                      dot={{ fill: '#0d3f8f', strokeWidth: 2, r: 4 }}
                     />
                   </LineChart>
                 </div>

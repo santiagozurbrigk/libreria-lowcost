@@ -341,9 +341,9 @@ export function OrderBarcodeScanner({ onClose, onOrderFound, onOrderNotFound }: 
           {/* Estado de búsqueda */}
           {scannedBarcode && (
             <div className="space-y-4">
-              <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
-                <Search className="h-4 w-4 text-blue-700" />
-                <span className="text-sm text-blue-700">
+              <div className="flex items-center gap-2 p-3 bg-primary/10 border border-primary/20 rounded-md">
+                <Search className="h-4 w-4 text-primary" />
+                <span className="text-sm text-primary">
                   Buscando reserva con código: <strong className="font-mono">{scannedBarcode}</strong>
                 </span>
               </div>

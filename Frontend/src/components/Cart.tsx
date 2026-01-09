@@ -27,7 +27,7 @@ export function Cart() {
     return (
       <button
         onClick={toggleCart}
-        className="fixed bottom-6 right-6 z-50 bg-white text-gray-800 rounded-full p-4 shadow-lg hover:bg-gray-50 transition-all duration-300 hover:scale-110 hover:shadow-xl border border-gray-200 animate-slide-in-bottom"
+        className="fixed bottom-6 right-6 z-50 bg-primary text-primary-foreground rounded-full p-4 shadow-lg hover:bg-primary/90 transition-all duration-300 hover:scale-110 hover:shadow-xl border border-primary/20 animate-slide-in-bottom"
       >
         <ShoppingCart className="h-6 w-6" />
         {getTotalItems() > 0 && (
@@ -80,7 +80,7 @@ export function Cart() {
                     <div className="flex-1 min-w-0">
                       <h4 className="font-medium truncate">{item.name}</h4>
                       <p className="text-sm text-muted-foreground">SKU: {item.sku}</p>
-                      <p className="text-sm font-medium">{formatPrice(item.price)}</p>
+                      <p className="text-sm font-medium text-primary">{formatPrice(item.price)}</p>
                     </div>
 
                     <div className="flex items-center space-x-2">
@@ -124,7 +124,7 @@ export function Cart() {
             <div className="border-t p-4 space-y-4">
               <div className="flex justify-between items-center text-lg font-semibold">
                 <span>Total:</span>
-                <span>{formatPrice(getTotalPrice())}</span>
+                <span className="text-primary">{formatPrice(getTotalPrice())}</span>
               </div>
               
               <div className="space-y-2">

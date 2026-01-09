@@ -30,7 +30,7 @@ export function OrderDetails({ order, onClose }: OrderDetailsProps) {
       case 'pendiente':
         return 'bg-yellow-50 text-yellow-700 border border-yellow-200';
       case 'preparando':
-        return 'bg-blue-50 text-blue-700 border border-blue-200';
+        return 'bg-primary/10 text-primary border border-primary/20';
       case 'listo':
         return 'bg-green-50 text-green-700 border border-green-200';
       case 'entregado':
@@ -89,7 +89,7 @@ export function OrderDetails({ order, onClose }: OrderDetailsProps) {
                   <DollarSign className="h-4 w-4 text-muted-foreground" />
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Total</label>
-                    <p className="text-lg font-semibold">${order.total.toFixed(2)}</p>
+                    <p className="text-lg font-semibold text-primary">${order.total.toFixed(2)}</p>
                   </div>
                 </div>
 
@@ -191,9 +191,9 @@ export function OrderDetails({ order, onClose }: OrderDetailsProps) {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="font-medium">${item.price.toFixed(2)}</div>
+                    <div className="font-medium text-primary">${item.price.toFixed(2)}</div>
                     <div className="text-sm text-muted-foreground">x{item.quantity}</div>
-                    <div className="font-semibold">${(item.price * item.quantity).toFixed(2)}</div>
+                    <div className="font-semibold text-primary">${(item.price * item.quantity).toFixed(2)}</div>
                   </div>
                 </div>
               ))}
@@ -202,7 +202,7 @@ export function OrderDetails({ order, onClose }: OrderDetailsProps) {
             <div className="mt-4 pt-4 border-t">
               <div className="flex justify-between items-center text-lg font-semibold">
                 <span>Total de la Reserva:</span>
-                <span>${order.total.toFixed(2)}</span>
+                <span className="text-primary">${order.total.toFixed(2)}</span>
               </div>
             </div>
           </div>

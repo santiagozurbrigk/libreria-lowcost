@@ -71,7 +71,7 @@ export function AdminOrders() {
       case 'pendiente':
         return 'bg-yellow-50 text-yellow-700 border border-yellow-200';
       case 'preparando':
-        return 'bg-blue-50 text-blue-700 border border-blue-200';
+        return 'bg-primary/10 text-primary border border-primary/20';
       case 'listo':
         return 'bg-green-50 text-green-700 border border-green-200';
       case 'entregado':

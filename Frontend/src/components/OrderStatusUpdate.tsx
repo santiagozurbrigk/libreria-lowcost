@@ -102,9 +102,9 @@ export function OrderStatusUpdate({ order, onSubmit, onCancel, isLoading }: Orde
             </div>
 
             {/* Resumen de cambios */}
-            <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
-              <div className="text-sm font-medium text-blue-900 mb-2">Resumen de cambios:</div>
-              <div className="text-sm text-blue-800 space-y-1">
+            <div className="bg-primary/10 border border-primary/20 p-4 rounded-lg">
+              <div className="text-sm font-medium text-primary mb-2">Resumen de cambios:</div>
+              <div className="text-sm text-primary/80 space-y-1">
                 <div>• Estado: {statusOptions.find(opt => opt.value === status)?.label}</div>
                 <div>• Pago: {isPaid ? 'Pagado' : 'Pendiente'}</div>
               </div>

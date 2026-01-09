@@ -230,7 +230,7 @@ export function AdminProducts() {
                               <span className="font-mono text-sm">{product.sku || 'N/A'}</span>
                             </td>
                             <td className="p-4">
-                              <span className="font-medium">${product.price.toFixed(2)}</span>
+                              <span className="font-medium text-primary">${product.price.toFixed(2)}</span>
                             </td>
                             <td className="p-4">
                               <span className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -258,7 +258,7 @@ export function AdminProducts() {
                                   variant="outline"
                                   size="sm"
                                   onClick={() => setViewingProduct(product)}
-                                  className="transition-all duration-200 hover:scale-110 hover:bg-blue-50"
+                                  className="transition-all duration-200 hover:scale-110 hover:bg-primary/10"
                                 >
                                   <Eye className="h-4 w-4" />
                                 </Button>

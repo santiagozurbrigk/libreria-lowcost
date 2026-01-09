@@ -64,7 +64,7 @@ export function ProductDetails({ product, onClose }: ProductDetailsProps) {
                   <DollarSign className="h-4 w-4 text-muted-foreground" />
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Precio</label>
-                    <p className="text-lg font-semibold">${product.price.toFixed(2)}</p>
+                    <p className="text-lg font-semibold text-primary">${product.price.toFixed(2)}</p>
                   </div>
                 </div>
 

@@ -62,12 +62,12 @@ export function Catalog() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-card border-b border-border">
+      <header className="bg-primary border-b border-primary/20">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <img src="/logo.png" alt="Librería Low Cost" className="h-8 w-8" />
-              <h1 className="text-2xl font-bold">Librería Low Cost</h1>
+              <h1 className="text-2xl font-bold text-primary-foreground">Librería Low Cost</h1>
             </div>
             <AuthStatus />
           </div>

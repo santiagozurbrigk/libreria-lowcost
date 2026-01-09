@@ -18,13 +18,13 @@ export function AdminNavbar() {
   };
 
   return (
-    <nav className="bg-card border-b border-border">
+    <nav className="bg-primary border-b border-primary/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <div className="flex-shrink-0 flex items-center">
               <img src="/logo.png" alt="Librería Low Cost" className="h-8 w-8" />
-              <span className="ml-2 text-xl font-bold">Librería Low Cost</span>
+                  <span className="ml-2 text-xl font-bold text-primary-foreground">Librería Low Cost</span>
             </div>
             
             <div className="hidden md:ml-6 md:flex md:space-x-8">
@@ -33,8 +33,8 @@ export function AdminNavbar() {
                   href="/admin"
                   className={`px-3 py-2 rounded-md text-sm font-medium flex items-center transition-all duration-200 hover:scale-105 ${
                     isActive('/admin') 
-                      ? 'text-primary bg-primary/10' 
-                      : 'text-muted-foreground hover:text-primary'
+                      ? 'text-primary-foreground bg-primary/20' 
+                      : 'text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary/10'
                   }`}
                 >
                   <BarChart3 className="h-4 w-4 mr-2" />
@@ -44,9 +44,9 @@ export function AdminNavbar() {
               <a
                 href="/admin/products"
                 className={`px-3 py-2 rounded-md text-sm font-medium flex items-center transition-all duration-200 hover:scale-105 ${
-                  isActive('/admin/products') 
-                    ? 'text-primary bg-primary/10' 
-                    : 'text-muted-foreground hover:text-primary'
+                    isActive('/admin/products') 
+                      ? 'text-primary-foreground bg-primary/20' 
+                      : 'text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary/10'
                 }`}
               >
                 <Package className="h-4 w-4 mr-2" />
@@ -55,9 +55,9 @@ export function AdminNavbar() {
               <a
                 href="/admin/orders"
                 className={`px-3 py-2 rounded-md text-sm font-medium flex items-center transition-all duration-200 hover:scale-105 ${
-                  isActive('/admin/orders') 
-                    ? 'text-primary bg-primary/10' 
-                    : 'text-muted-foreground hover:text-primary'
+                    isActive('/admin/orders') 
+                      ? 'text-primary-foreground bg-primary/20' 
+                      : 'text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary/10'
                 }`}
               >
                 <ShoppingBag className="h-4 w-4 mr-2" />
@@ -68,8 +68,8 @@ export function AdminNavbar() {
                   href="/admin/users"
                   className={`px-3 py-2 rounded-md text-sm font-medium flex items-center transition-all duration-200 hover:scale-105 ${
                     isActive('/admin/users') 
-                      ? 'text-primary bg-primary/10' 
-                      : 'text-muted-foreground hover:text-primary'
+                      ? 'text-primary-foreground bg-primary/20' 
+                      : 'text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary/10'
                   }`}
                 >
                   <Users className="h-4 w-4 mr-2" />
@@ -82,8 +82,8 @@ export function AdminNavbar() {
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
               <div className="text-sm">
-                <p className="font-medium">{user?.name}</p>
-                <p className="text-muted-foreground capitalize">{user?.role}</p>
+                <p className="font-medium text-primary-foreground">{user?.name}</p>
+                <p className="text-primary-foreground/80 capitalize">{user?.role}</p>
               </div>
             </div>
             

@@ -200,7 +200,7 @@ export function Checkout() {
                         {item.quantity} x {formatPrice(item.price)}
                       </p>
                     </div>
-                    <span className="font-medium">
+                    <span className="font-medium text-primary">
                       {formatPrice(item.price * item.quantity)}
                     </span>
                   </div>
@@ -209,7 +209,7 @@ export function Checkout() {
                 <div className="pt-4 border-t">
                   <div className="flex justify-between items-center text-lg font-bold">
                     <span>Total:</span>
-                    <span>{formatPrice(getTotalPrice())}</span>
+                    <span className="text-primary">{formatPrice(getTotalPrice())}</span>
                   </div>
                 </div>
 
