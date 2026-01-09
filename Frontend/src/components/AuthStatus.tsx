@@ -14,9 +14,9 @@ export function AuthStatus() {
   return (
     <div className="flex items-center space-x-4">
       <div className="flex items-center space-x-2">
-        <User className="h-4 w-4 text-muted-foreground" />
-        <span className="text-sm font-medium">{user?.name}</span>
-        <span className="text-xs text-muted-foreground capitalize">
+        <User className="h-4 w-4 text-primary-foreground" />
+        <span className="text-sm font-medium text-primary-foreground">{user?.name}</span>
+        <span className="text-xs text-primary-foreground/80 capitalize">
           ({user?.role})
         </span>
       </div>
