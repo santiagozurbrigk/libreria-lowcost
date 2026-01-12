@@ -84,68 +84,36 @@ router.post('/', optionalAuth, async (req: AuthRequest, res, next) => {
     }
 
     // Crear o encontrar el cliente
-    let clientId;
+    // Nota: client_id en orders es integer (referencia a users.id)
+    // Si no hay usuario autenticado, client_id será null ya que tenemos los datos del cliente directamente
+    let clientId: number | null = null;
+    
     if (req.user?.id) {
-      // Si el usuario está autenticado, usar su ID
+      // Si el usuario está autenticado, usar su ID (que es integer)
       clientId = req.user.id;
-    } else {
-      // Si no está autenticado, crear un cliente temporal
-      const { data: existingClients, error: searchError } = await supabaseAdmin
-        .from('clients')
-        .select('id')
-        .eq('phone', customer_phone)
-        .limit(1);
-
-      if (searchError) {
-        console.error('Error buscando cliente:', searchError);
-      }
-
-      if (existingClients && existingClients.length > 0) {
-        clientId = existingClients[0].id;
-      } else {
-        // Crear nuevo cliente sin usuario (solo con datos del checkout)
-        const { data: newClient, error: clientError } = await supabaseAdmin
-          .from('clients')
-          .insert({
-            phone: customer_phone,
-            address: null
-          })
-          .select('id')
-          .single();
-
-        if (clientError) {
-          console.error('Error creando cliente:', clientError);
-          throw createError(`Error creando cliente: ${clientError.message || JSON.stringify(clientError)}`, 500);
-        }
-        
-        if (!newClient || !newClient.id) {
-          console.error('Error: No se recibió el ID del cliente creado');
-          throw createError('Error: No se pudo obtener el ID del cliente creado', 500);
-        }
-        
-        clientId = newClient.id;
-      }
     }
-
-    // Validar que tenemos un clientId
-    if (!clientId) {
-      console.error('Error: clientId no está definido');
-      throw createError('Error: No se pudo crear o encontrar el cliente', 500);
-    }
+    // Si no está autenticado, client_id será null
+    // Los datos del cliente se almacenan directamente en customer_name, customer_email, customer_phone
 
     // Crear la reserva
+    const orderData: any = {
+      total,
+      status: 'pendiente',
+      is_paid: false,
+      // Almacenar datos del cliente en la reserva
+      customer_name: customer_name,
+      customer_email: customer_email,
+      customer_phone: customer_phone
+    };
+
+    // Solo agregar client_id si hay un usuario autenticado
+    if (clientId !== null) {
+      orderData.client_id = clientId;
+    }
+
     const { data: newOrder, error: orderError } = await supabaseAdmin
       .from('orders')
-      .insert({
-        client_id: clientId,
-        total,
-        status: 'pendiente',
-        is_paid: false,
-        // Almacenar datos del cliente en la reserva
-        customer_name: customer_name,
-        customer_email: customer_email,
-        customer_phone: customer_phone
-      })
+      .insert(orderData)
       .select('*')
       .single();
 
