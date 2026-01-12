@@ -90,14 +90,18 @@ router.post('/', optionalAuth, async (req: AuthRequest, res, next) => {
       clientId = req.user.id;
     } else {
       // Si no está autenticado, crear un cliente temporal
-      const { data: existingClient } = await supabaseAdmin
+      const { data: existingClients, error: searchError } = await supabaseAdmin
         .from('clients')
         .select('id')
         .eq('phone', customer_phone)
-        .single();
+        .limit(1);
 
-      if (existingClient) {
-        clientId = existingClient.id;
+      if (searchError) {
+        console.error('Error buscando cliente:', searchError);
+      }
+
+      if (existingClients && existingClients.length > 0) {
+        clientId = existingClients[0].id;
       } else {
         // Crear nuevo cliente sin usuario (solo con datos del checkout)
         const { data: newClient, error: clientError } = await supabaseAdmin
@@ -111,10 +115,22 @@ router.post('/', optionalAuth, async (req: AuthRequest, res, next) => {
 
         if (clientError) {
           console.error('Error creando cliente:', clientError);
-          throw createError('Error creando cliente', 500);
+          throw createError(`Error creando cliente: ${clientError.message || JSON.stringify(clientError)}`, 500);
         }
+        
+        if (!newClient || !newClient.id) {
+          console.error('Error: No se recibió el ID del cliente creado');
+          throw createError('Error: No se pudo obtener el ID del cliente creado', 500);
+        }
+        
         clientId = newClient.id;
       }
+    }
+
+    // Validar que tenemos un clientId
+    if (!clientId) {
+      console.error('Error: clientId no está definido');
+      throw createError('Error: No se pudo crear o encontrar el cliente', 500);
     }
 
     // Crear la reserva
@@ -134,7 +150,17 @@ router.post('/', optionalAuth, async (req: AuthRequest, res, next) => {
       .single();
 
     if (orderError) {
-      throw createError('Error creando reserva', 500);
+      console.error('Error creando reserva:', orderError);
+      console.error('Datos intentados:', {
+        client_id: clientId,
+        total,
+        status: 'pendiente',
+        is_paid: false,
+        customer_name,
+        customer_email,
+        customer_phone
+      });
+      throw createError(`Error creando reserva: ${orderError.message || JSON.stringify(orderError)}`, 500);
     }
 
     // Crear los items de la reserva
