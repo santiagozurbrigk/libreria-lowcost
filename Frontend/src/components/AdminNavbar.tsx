@@ -29,29 +29,42 @@ export function AdminNavbar() {
             
             <div className="hidden md:ml-6 md:flex md:space-x-8">
               {user?.role === 'admin' && (
-                <a
-                  href="/admin"
-                  className={`px-3 py-2 rounded-md text-sm font-medium flex items-center transition-all duration-200 hover:scale-105 ${
-                    isActive('/admin') 
-                      ? 'text-primary-foreground bg-primary/20' 
-                      : 'text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary/10'
-                  }`}
-                >
-                  <BarChart3 className="h-4 w-4 mr-2" />
-                  Dashboard
-                </a>
+                <>
+                  <a
+                    href="/admin"
+                    className={`px-3 py-2 rounded-md text-sm font-medium flex items-center transition-all duration-200 hover:scale-105 ${
+                      isActive('/admin') 
+                        ? 'text-primary-foreground bg-primary/20' 
+                        : 'text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary/10'
+                    }`}
+                  >
+                    <BarChart3 className="h-4 w-4 mr-2" />
+                    Dashboard
+                  </a>
+                  <a
+                    href="/admin/products"
+                    className={`px-3 py-2 rounded-md text-sm font-medium flex items-center transition-all duration-200 hover:scale-105 ${
+                        isActive('/admin/products') 
+                          ? 'text-primary-foreground bg-primary/20' 
+                          : 'text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary/10'
+                    }`}
+                  >
+                    <Package className="h-4 w-4 mr-2" />
+                    Productos
+                  </a>
+                  <a
+                    href="/admin/users"
+                    className={`px-3 py-2 rounded-md text-sm font-medium flex items-center transition-all duration-200 hover:scale-105 ${
+                      isActive('/admin/users') 
+                        ? 'text-primary-foreground bg-primary/20' 
+                        : 'text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary/10'
+                    }`}
+                  >
+                    <Users className="h-4 w-4 mr-2" />
+                    Usuarios
+                  </a>
+                </>
               )}
-              <a
-                href="/admin/products"
-                className={`px-3 py-2 rounded-md text-sm font-medium flex items-center transition-all duration-200 hover:scale-105 ${
-                    isActive('/admin/products') 
-                      ? 'text-primary-foreground bg-primary/20' 
-                      : 'text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary/10'
-                }`}
-              >
-                <Package className="h-4 w-4 mr-2" />
-                Productos
-              </a>
               <a
                 href="/admin/orders"
                 className={`px-3 py-2 rounded-md text-sm font-medium flex items-center transition-all duration-200 hover:scale-105 ${
@@ -63,19 +76,6 @@ export function AdminNavbar() {
                 <ShoppingBag className="h-4 w-4 mr-2" />
                 Reservas
               </a>
-              {user?.role === 'admin' && (
-                <a
-                  href="/admin/users"
-                  className={`px-3 py-2 rounded-md text-sm font-medium flex items-center transition-all duration-200 hover:scale-105 ${
-                    isActive('/admin/users') 
-                      ? 'text-primary-foreground bg-primary/20' 
-                      : 'text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary/10'
-                  }`}
-                >
-                  <Users className="h-4 w-4 mr-2" />
-                  Usuarios
-                </a>
-              )}
             </div>
           </div>
 

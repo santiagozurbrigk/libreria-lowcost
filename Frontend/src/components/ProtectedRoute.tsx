@@ -15,6 +15,11 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
+  // Si es empleado, solo puede acceder a /admin/orders
+  if (user?.role === 'empleado' && location.pathname !== '/admin/orders') {
+    return <Navigate to="/admin/orders" replace />;
+  }
+
   if (requiredRole && user?.role !== requiredRole) {
     // Verificar si el usuario tiene permisos suficientes
     if (requiredRole === 'empleado' && user?.role === 'admin') {

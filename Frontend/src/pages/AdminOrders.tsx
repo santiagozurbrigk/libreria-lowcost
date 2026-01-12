@@ -9,8 +9,11 @@ import { OrderStatusUpdate } from '../components/OrderStatusUpdate';
 import { OrderBarcodeScanner } from '../components/OrderBarcodeScanner';
 import { exportOrdersToExcel } from '../lib/exportToExcel';
 import { api } from '../lib/api';
+import { useAuthStore } from '../store/auth';
 
 export function AdminOrders() {
+  const { user } = useAuthStore();
+  const isEmployee = user?.role === 'empleado';
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [page, setPage] = useState(1);
@@ -154,35 +157,37 @@ export function AdminOrders() {
                   Administra y actualiza el estado de las reservas
                 </p>
               </div>
-              <div className="flex items-center gap-2">
-                {selectedOrderIds.size > 0 && (
+              {!isEmployee && (
+                <div className="flex items-center gap-2">
+                  {selectedOrderIds.size > 0 && (
+                    <Button
+                      variant="default"
+                      onClick={handleExportSelected}
+                      className="transition-all duration-200 hover:scale-105"
+                    >
+                      <FileSpreadsheet className="mr-2 h-4 w-4" />
+                      Exportar Seleccionados ({selectedOrderIds.size})
+                    </Button>
+                  )}
                   <Button
-                    variant="default"
-                    onClick={handleExportSelected}
+                    variant="outline"
+                    onClick={handleExportAll}
+                    disabled={isExporting}
                     className="transition-all duration-200 hover:scale-105"
                   >
-                    <FileSpreadsheet className="mr-2 h-4 w-4" />
-                    Exportar Seleccionados ({selectedOrderIds.size})
+                    <Download className="mr-2 h-4 w-4" />
+                    {isExporting ? 'Exportando...' : 'Exportar Todos'}
                   </Button>
-                )}
-                <Button
-                  variant="outline"
-                  onClick={handleExportAll}
-                  disabled={isExporting}
-                  className="transition-all duration-200 hover:scale-105"
-                >
-                  <Download className="mr-2 h-4 w-4" />
-                  {isExporting ? 'Exportando...' : 'Exportar Todos'}
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setShowScanner(true)}
-                  className="transition-all duration-200 hover:scale-105"
-                >
-                  <Scan className="mr-2 h-4 w-4" />
-                  Escanear Código
-                </Button>
-              </div>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowScanner(true)}
+                    className="transition-all duration-200 hover:scale-105"
+                  >
+                    <Scan className="mr-2 h-4 w-4" />
+                    Escanear Código
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -260,14 +265,16 @@ export function AdminOrders() {
                     <table className="w-full">
                       <thead>
                         <tr className="border-b">
-                          <th className="text-left p-4 w-12">
-                            <input
-                              type="checkbox"
-                              checked={selectedOrderIds.size === orders.length && orders.length > 0}
-                              onChange={handleSelectAll}
-                              className="cursor-pointer"
-                            />
-                          </th>
+                          {!isEmployee && (
+                            <th className="text-left p-4 w-12">
+                              <input
+                                type="checkbox"
+                                checked={selectedOrderIds.size === orders.length && orders.length > 0}
+                                onChange={handleSelectAll}
+                                className="cursor-pointer"
+                              />
+                            </th>
+                          )}
                           <th className="text-left p-4">ID</th>
                           <th className="text-left p-4">Cliente</th>
                           <th className="text-left p-4">Total</th>
@@ -280,14 +287,16 @@ export function AdminOrders() {
                       <tbody>
                         {orders.map((order) => (
                           <tr key={order.id} className="border-b hover:bg-muted/50">
-                            <td className="p-4">
-                              <input
-                                type="checkbox"
-                                checked={selectedOrderIds.has(order.id)}
-                                onChange={() => handleToggleSelect(order.id)}
-                                className="cursor-pointer"
-                              />
-                            </td>
+                            {!isEmployee && (
+                              <td className="p-4">
+                                <input
+                                  type="checkbox"
+                                  checked={selectedOrderIds.has(order.id)}
+                                  onChange={() => handleToggleSelect(order.id)}
+                                  className="cursor-pointer"
+                                />
+                              </td>
+                            )}
                             <td className="p-4">
                               <span className="font-mono text-sm">#{order.id}</span>
                             </td>
@@ -342,21 +351,25 @@ export function AdminOrders() {
                                 >
                                   <Eye className="h-4 w-4" />
                                 </Button>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => setEditingOrder(order)}
-                                >
-                                  <Edit className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => setDeleteConfirm(order.id.toString())}
-                                  className="text-destructive hover:text-destructive"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
+                                {!isEmployee && (
+                                  <>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => setEditingOrder(order)}
+                                    >
+                                      <Edit className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => setDeleteConfirm(order.id.toString())}
+                                      className="text-destructive hover:text-destructive"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </>
+                                )}
                               </div>
                             </td>
                           </tr>

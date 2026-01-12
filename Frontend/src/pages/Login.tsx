@@ -36,7 +36,7 @@ export function Login() {
       if (result.user.role === 'admin') {
         navigate('/admin'); // Admin va al dashboard
       } else if (result.user.role === 'empleado') {
-        navigate('/admin/products'); // Empleado va directamente a productos
+        navigate('/admin/orders'); // Empleado va directamente a reservas (solo lectura)
       } else {
         navigate('/'); // Cliente va al catálogo
       }
