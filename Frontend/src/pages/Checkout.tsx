@@ -217,9 +217,6 @@ export function Checkout() {
                   <h4 className="font-medium text-green-900 mb-2">💡 Proceso simple y rápido:</h4>
                   <ul className="text-sm text-green-800 space-y-1">
                     <li>• <strong>Sin registro necesario</strong> - Solo completa tus datos</li>
-                    <li>• <strong>Pago al retirar</strong> - No necesitas pagar ahora</li>
-                    <li>• <strong>Notificación por WhatsApp</strong> - Te avisamos cuando esté listo</li>
-                    <li>• <strong>Preparación rápida</strong> - 24-48 horas máximo</li>
                   </ul>
                 </div>
               </div>
