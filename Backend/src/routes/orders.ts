@@ -89,8 +89,18 @@ router.post('/', optionalAuth, async (req: AuthRequest, res, next) => {
     let clientId: number | null = null;
     
     if (req.user?.id) {
-      // Si el usuario está autenticado, usar su ID (que es integer)
-      clientId = req.user.id;
+      // Si el usuario está autenticado, convertir el ID a número
+      // users.id es string en la interfaz pero puede ser integer en la BD
+      // Intentamos convertir a número, si falla dejamos null
+      const userIdStr = String(req.user.id);
+      const userId = Number(userIdStr);
+      if (!isNaN(userId) && isFinite(userId) && userId > 0) {
+        clientId = userId;
+      } else {
+        // Si no es un número válido, dejar como null
+        // Esto puede pasar si users.id es UUID en lugar de integer
+        console.log(`users.id es ${req.user.id} (no es número válido), client_id será null`);
+      }
     }
     // Si no está autenticado, client_id será null
     // Los datos del cliente se almacenan directamente en customer_name, customer_email, customer_phone
